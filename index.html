@@ -1,1 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TNO Report Submission Status — Sabah Mission</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .modal-scroll::-webkit-scrollbar { width: 6px; }
+        .modal-scroll::-webkit-scrollbar-track { background: transparent; }
+        .modal-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
+        
+        @media print {
+            body { background: white !important; color: black !important; }
+            .print-hide { display: none !important; }
+            .print-w-full { width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            .print-break-avoid { break-inside: avoid; page-break-inside: avoid; }
+            .print-shadow-none { box-shadow: none !important; border: 1px solid #e2e8f0 !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-blue-500 selection:text-white print:bg-white">
 
+    <header class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-40 px-4 md:px-8 py-3 md:py-4 print-hide">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+            <div class="flex items-center justify-between w-full md:w-auto gap-3 md:gap-4">
+                <div class="order-1 md:order-2 flex flex-col">
+                    <h1 class="text-lg md:text-xl font-extrabold tracking-tight text-slate-900 leading-tight" data-lang="title">TNO Report Submission Status</h1>
+                    <p class="text-[10px] md:text-xs text-slate-500 font-bold tracking-wide uppercase" data-lang="subtitle">SABAH MISSION — FINANCE DEPARTMENT</p>
+                </div>
+                <img src="SDA-LOGO.png" alt="SDA Logo" class="h-10 md:h-12 w-auto object-contain order-2 md:order-1 shrink-0">
+            </div>
+
+            <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+                <div class="flex bg-slate-100 rounded-lg p-0.5 border border-slate-200">
+                    <button onclick="changeLang('en')" id="lang-en" class="px-3 py-1 text-xs font-bold rounded-md bg-white text-blue-700 transition shadow-sm border border-slate-200/50">EN</button>
+                    <button onclick="changeLang('bm')" id="lang-bm" class="px-3 py-1 text-xs font-bold rounded-md text-slate-500 hover:text-slate-800 transition">BM</button>
+                </div>
+                <button onclick="window.print()" class="hidden md:flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    <span data-lang="printBtn">Print Report</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="hidden print:block text-center py-6 border-b-2 border-slate-800 mb-6">
+        <h1 class="text-2xl font-bold uppercase text-black" data-lang="title">TNO Report Submission Status</h1>
+        <p class="text-sm text-slate-600 font-bold mt-1 uppercase" data-lang="subtitle">SABAH MISSION — FINANCE DEPARTMENT</p>
+        <p class="text-xs text-slate-500 mt-2 font-bold" id="print-timestamp"></p>
+    </div>
+
+    <main class="max-w-7xl mx-auto w-full px-4 md:px-8 mt-6 flex-grow flex flex-col md:flex-row gap-6 items-start print-w-full">
+        
+        <section class="w-full md:w-80 shrink-0 bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-4 sticky md:top-24 z-30 print-hide">
+            <div class="bg-blue-50 text-blue-700 text-[10px] px-3 py-1.5 rounded-lg border border-blue-100 font-bold flex items-center justify-between">
+                <span class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                    <span data-lang="liveSync">Live Sync Active (5 mins cache)</span>
+                </span>
+            </div>
+
+            <div class="flex flex-col gap-2 border-b border-slate-100 pb-3">
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-400" data-lang="selYear">Select Year</span>
+                <div class="grid grid-cols-4 gap-1.5 bg-slate-100 p-1 rounded-xl" id="year-selector">
+                    <button onclick="changeYear('2023')" id="btn-2023" class="py-1.5 text-xs font-bold rounded-lg transition-all duration-200">2023</button>
+                    <button onclick="changeYear('2024')" id="btn-2024" class="py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-500 hover:text-slate-800">2024</button>
+                    <button onclick="changeYear('2025')" id="btn-2025" class="py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-500 hover:text-slate-800">2025</button>
+                    <button onclick="changeYear('2026')" id="btn-2026" class="py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-500 hover:text-slate-800">2026</button>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-2 border-b border-slate-100 pb-3">
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-400" data-lang="filterTitle">Data Filters</span>
+                <div class="flex flex-col gap-2">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1" data-lang="filterDaerah">Daerah</label>
+                        <select id="filter-daerah" onchange="handleFilterChange()" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-xl p-2 font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none transition"></select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1" data-lang="filterType">Classification Type</label>
+                        <select id="filter-type" onchange="handleFilterChange()" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-xl p-2 font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none transition"></select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1" data-lang="filterPic">PR PIC Person</label>
+                        <select id="filter-pic" onchange="handleFilterChange()" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-xl p-2 font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none transition"></select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1" data-lang="filterAudit">Audit Status</label>
+                        <select id="filter-audit" onchange="handleFilterChange()" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-xl p-2 font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none transition"></select>
+                    </div>
+                    <button onclick="resetFilters()" id="btn-reset-filters" class="hidden text-[11px] font-bold text-rose-600 hover:text-rose-700 text-right mt-1 self-end bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-100 transition shadow-sm">
+                        ✕ Reset Filters
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-400" data-lang="selView">Select View</span>
+                <div class="block md:hidden relative">
+                    <select id="month-dropdown" onchange="changeMonth(this.value)" class="w-full bg-slate-100 border border-slate-200 text-slate-800 text-sm rounded-xl focus:ring-blue-500 block p-3 font-bold appearance-none shadow-sm"></select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                </div>
+                <div class="hidden md:grid md:grid-cols-3 gap-2" id="month-track"></div>
+            </div>
+        </section>
+
+        <div class="flex-grow w-full flex flex-col gap-6 print-w-full">
+            
+            <div class="relative print-hide">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <input type="text" id="search-input" onkeyup="handleSearch()" class="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl leading-5 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm font-medium shadow-sm transition" placeholder="Search Church / Daerah..." data-placeholder="searchPlaceholder">
+            </div>
+
+            <section id="search-results-section" class="hidden flex flex-col gap-3">
+                <div class="flex justify-between items-center px-1 border-b border-slate-200 pb-2">
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-blue-600" data-lang="searchResults">Search Results</h2>
+                    <button onclick="clearSearch()" class="text-xs font-bold text-slate-400 hover:text-slate-600" data-lang="clearSearch">Clear ✕</button>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-3" id="search-results-container"></div>
+            </section>
+
+            <div id="standard-dashboard" class="flex flex-col gap-6">
+                
+                <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-4 print-break-avoid" id="summary-section">
+                    <div class="border-b border-slate-100 pb-2 flex items-center justify-between">
+                        <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500" data-lang="summaryTitle">Executive Summary</h3>
+                        <span class="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full font-bold border border-blue-100">Live Analysis</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="summary-cards-container">
+                        <div class="animate-pulse h-20 bg-slate-100 rounded-xl w-full"></div>
+                        <div class="animate-pulse h-20 bg-slate-100 rounded-xl w-full"></div>
+                        <div class="animate-pulse h-20 bg-slate-100 rounded-xl w-full"></div>
+                    </div>
+                </section>
+
+                <section class="flex flex-col gap-3">
+                    <div class="flex justify-between items-center px-1">
+                        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500" id="dashboard-title">Wilayah Dashboard</h2>
+                        <span class="text-xs font-bold bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full border border-blue-100" id="global-percentage">0% Done</span>
+                    </div>
+                    <div id="loader" class="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center justify-center gap-3 w-full print-hide">
+                        <div class="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                        <p class="text-xs text-slate-400 font-medium animate-pulse" data-lang="fetching">Fetching live data...</p>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 hidden print:grid-cols-5" id="wilayah-grid"></div>
+                </section>
+
+                <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-4 hidden print-break-avoid print-shadow-none" id="comparison-graph-section">
+                    <div class="border-b border-slate-100 pb-2 flex items-center justify-between">
+                        <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500" data-lang="compTitle">Submission Comparison</h3>
+                        <span class="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-semibold" data-lang="compSub">Wilayah vs. Wilayah</span>
+                    </div>
+                    <div id="comparison-bars-container" class="flex flex-col gap-3 mt-1"></div>
+                </section>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full text-center flex flex-col gap-1 text-[11px] font-medium text-slate-400 py-8 border-t border-slate-200/50 mt-12 bg-slate-100/50 print-hide">
+        <p>Sabah Mission — Finance Department &copy; <span id="footer-year">2026</span></p>
+        <p id="live-timestamp-footer" class="font-bold text-slate-500"></p>
+    </footer>
+
+    <div id="deep-dive-modal" class="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 sm:p-6 opacity-0 transition-opacity duration-300 print-hide">
+        <div class="bg-slate-50 w-full max-w-4xl max-h-[90vh] sm:max-h-[85vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden transform scale-95 transition-transform duration-300" id="deep-dive-content">
+            <div class="bg-slate-800 text-white px-5 py-4 flex justify-between items-center shrink-0 shadow-md z-10">
+                <h3 class="text-sm md:text-base font-bold uppercase tracking-widest" id="deep-dive-title">Deep-Dive Status</h3>
+                <button onclick="closeDeepDiveModal()" class="text-slate-300 hover:text-white bg-slate-700/50 hover:bg-slate-600 rounded-full w-8 h-8 flex items-center justify-center transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="overflow-y-auto modal-scroll p-4 md:p-6 flex-grow bg-slate-50">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="church-cards-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SPREADSHEET_BASE_ID = '1x3GOISJ6VrvytCil-l_INYRK0HU_s_vf6U1Y2Lpzd8A';
+        const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+        const viewOptions = [...months, 'FULL YEAR']; 
+        
+        let currentYear = ''; 
+        let currentMonth = '';
+        let rawSheetData = [];
+        let selectedWilayah = null;
+        let currentLanguage = 'en';
+
+        // Variables for live calendar detection
+        const actualCalendarYear = new Date().getFullYear().toString();
+        const actualPreviousYear = (new Date().getFullYear() - 1).toString();
+        const actualCurrentMonth = months[new Date().getMonth()];
+        let summaryMetrics = null; 
+
+        // Active drop-down filter variables
+        let selDaerah = 'ALL';
+        let selType = 'ALL';
+        let selPic = 'ALL';
+        let selAudit = 'ALL';
+
+        const dict = {
+            'en': {
+                'title': 'TNO Report Submission Status',
+                'subtitle': 'SABAH MISSION — FINANCE DEPARTMENT',
+                'liveSync': 'Live Sync Active (5 mins cache)',
+                'selYear': 'Select Year',
+                'selView': 'Select View',
+                'filterTitle': 'Data Filters',
+                'filterDaerah': 'Daerah Location',
+                'filterType': 'Classification Type',
+                'filterPic': 'PR PIC Person',
+                'filterAudit': 'Audit Status',
+                'searchPlaceholder': 'Search Church / Daerah...',
+                'searchResults': 'Search Results',
+                'clearSearch': 'Clear ✕',
+                'dashTitle': 'Wilayah Dashboard',
+                'compTitle': 'Submission Comparison',
+                'compSub': 'Wilayah vs. Wilayah',
+                'deepTitle': 'Deep-Dive Status',
+                'printBtn': 'Print Report',
+                'fetching': 'Fetching live data from Google Sheets...',
+                'status_as_of': 'Status as of:',
+                'pending': 'Pending',
+                'submitted': 'Submitted',
+                'received': 'Received',
+                'all_in': '✨ All In!',
+                'full_year': 'FULL YEAR',
+                'full_year_lbl': '📊 Full Year Overview',
+                'annual_view': 'Annual View',
+                'annual_audit': 'Annual Audit View',
+                'summaryTitle': 'Executive Summary',
+                'sum_prev_title': `Pending Reports (${actualPreviousYear})`,
+                'sum_prev_sub': 'Of total year expectations',
+                'sum_curr_title': `Pending (${actualCurrentMonth} ${actualCalendarYear})`,
+                'sum_curr_sub': 'Churches yet to submit',
+                'sum_top_title': `Top Wilayah (${actualCurrentMonth})`,
+                'sum_top_sub': 'Submission rate'
+            },
+            'bm': {
+                'title': 'Status Penyerahan Laporan TNO',
+                'subtitle': 'MISSION SABAH — JABATAN KEWANGAN',
+                'liveSync': 'Penyegerakan Aktif (5 min cache)',
+                'selYear': 'Pilih Tahun',
+                'selView': 'Pilih Paparan',
+                'filterTitle': 'Penapis Data',
+                'filterDaerah': 'Kawasan Daerah',
+                'filterType': 'Jenis Klasifikasi',
+                'filterPic': 'Pegawai PR PIC',
+                'filterAudit': 'Status Audit',
+                'searchPlaceholder': 'Cari Gereja / Daerah...',
+                'searchResults': 'Hasil Carian',
+                'clearSearch': 'Padam ✕',
+                'dashTitle': 'Papan Pemuka Wilayah',
+                'compTitle': 'Perbandingan Penyerahan',
+                'compSub': 'Wilayah vs. Wilayah',
+                'deepTitle': 'Status Terperinci',
+                'printBtn': 'Cetak Laporan',
+                'fetching': 'Mengambil data langsung dari Google Sheets...',
+                'status_as_of': 'Status setakat:',
+                'pending': 'Tertunggak',
+                'submitted': 'Dihantar',
+                'received': 'Diterima',
+                'all_in': '✨ Selesai!',
+                'full_year': 'SEPANJANG TAHUN',
+                'full_year_lbl': '📊 Gambaran Keseluruhan Tahunan',
+                'annual_view': 'Paparan Tahunan',
+                'annual_audit': 'Paparan Audit Tahunan',
+                'summaryTitle': 'Ringkasan Eksekutif',
+                'sum_prev_title': `Laporan Tertunggak (${actualPreviousYear})`,
+                'sum_prev_sub': 'Daripada jangkaan tahunan',
+                'sum_curr_title': `Tertunggak (${actualCurrentMonth} ${actualCalendarYear})`,
+                'sum_curr_sub': 'Gereja belum menghantar',
+                'sum_top_title': `Wilayah Terbaik (${actualCurrentMonth})`,
+                'sum_top_sub': 'Kadar penyerahan'
+            }
+        };
+
+        function getText(key) { return dict[currentLanguage][key] || key; }
+
+        function changeLang(lang) {
+            currentLanguage = lang;
+            
+            document.getElementById('lang-en').className = lang === 'en' ? 'px-3 py-1 text-xs font-bold rounded-md bg-white text-blue-700 transition shadow-sm border border-slate-200/50' : 'px-3 py-1 text-xs font-bold rounded-md text-slate-500 hover:text-slate-800 transition';
+            document.getElementById('lang-bm').className = lang === 'bm' ? 'px-3 py-1 text-xs font-bold rounded-md bg-white text-blue-700 transition shadow-sm border border-slate-200/50' : 'px-3 py-1 text-xs font-bold rounded-md text-slate-500 hover:text-slate-800 transition';
+
+            document.querySelectorAll('[data-lang]').forEach(el => {
+                const key = el.getAttribute('data-lang');
+                if (dict[currentLanguage][key]) el.innerText = dict[currentLanguage][key];
+            });
+
+            document.querySelectorAll('[data-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-placeholder');
+                if (dict[currentLanguage][key]) el.placeholder = dict[currentLanguage][key];
+            });
+
+            updateTimestamp();
+            renderMonthSelectors();
+            renderSummaryCards(); 
+            if (rawSheetData.length > 0) {
+                calculateAndRenderUI();
+                handleSearch(); 
+            }
+        }
+
+        function updateTimestamp() {
+            const now = new Date();
+            const fullText = `${getText('status_as_of')} ${now.toLocaleString()}`;
+            document.getElementById('live-timestamp-footer').innerText = fullText;
+            document.getElementById('print-timestamp').innerText = fullText;
+        }
+
+        document.getElementById('deep-dive-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeDeepDiveModal();
+        });
+
+        function initApp() {
+            currentYear = actualCalendarYear;
+            document.getElementById('footer-year').innerText = currentYear;
+            
+            if (!['2023', '2024', '2025', '2026'].includes(currentYear)) currentYear = '2026';
+            currentMonth = actualCurrentMonth; 
+            
+            updateTimestamp();
+            updateYearSelectorsUI();
+            renderMonthSelectors();
+            loadSheetFeed();
+            loadSummaryStats(); 
+        }
+
+        function renderMonthSelectors() {
+            const track = document.getElementById('month-track');
+            track.innerHTML = '';
+            const dropdown = document.getElementById('month-dropdown');
+            dropdown.innerHTML = '';
+
+            viewOptions.forEach(optVal => {
+                const isActive = optVal === currentMonth;
+                const isFullYear = optVal === 'FULL YEAR';
+                
+                const btn = document.createElement('button');
+                const extraClasses = isFullYear ? 'col-span-3 bg-slate-800 text-white hover:bg-slate-700 mt-2' : '';
+                
+                btn.className = `px-2 py-2 text-xs font-bold rounded-xl transition-all duration-200 text-center w-full print-break-avoid ${extraClasses} ${
+                    isActive && !isFullYear ? 'bg-blue-600 text-white shadow-md shadow-blue-100' : 
+                    (isActive && isFullYear ? 'bg-blue-600 text-white shadow-md' : 
+                    (!extraClasses ? 'bg-slate-100 text-slate-600 hover:bg-slate-200' : ''))
+                }`;
+                btn.innerText = isFullYear ? getText('full_year') : optVal;
+                btn.onclick = () => changeMonth(optVal);
+                track.appendChild(btn);
+
+                const opt = document.createElement('option');
+                opt.value = optVal;
+                opt.innerText = isFullYear ? `${getText('full_year_lbl')} (${currentYear})` : `${optVal} ${currentYear}`;
+                if(isActive) opt.selected = true;
+                dropdown.appendChild(opt);
+            });
+        }
+
+        function parseCsvToArray(text) {
+            const lines = text.split('\n');
+            if (lines.length < 2) return [];
+            let data = [];
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                const columns = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
+                if (columns.length < 5 || !columns[0]) continue;
+                
+                const rowObj = { 
+                    wilayah: columns[0], 
+                    daerah: columns[1], 
+                    gereja: columns[2], 
+                    type: columns[3], 
+                    prPic: columns[4] || '-',
+                    audit: columns[5] || '-',
+                    months: {} 
+                };
+                
+                months.forEach((m, idx) => {
+                    const statusText = columns[6 + idx] ? columns[6 + idx].toLowerCase() : '';
+                    rowObj.months[m] = statusText.includes('submit') ? 'Submitted' : 'Pending';
+                });
+                data.push(rowObj);
+            }
+            return data;
+        }
+
+        // Dynamically build dropdown choices based on parsed data array
+        function buildFilterDropdowns() {
+            const daerahs = new Set();
+            const types = new Set();
+            const pics = new Set();
+            const audits = new Set();
+
+            rawSheetData.forEach(row => {
+                if (row.daerah && row.daerah !== '-') daerahs.add(row.daerah);
+                if (row.type && row.type !== '-') types.add(row.type);
+                if (row.prPic && row.prPic !== '-') pics.add(row.prPic);
+                if (row.audit && row.audit !== '-') audits.add(row.audit);
+            });
+
+            populateSelectElement('filter-daerah', daerahs, selDaerah);
+            populateSelectElement('filter-type', types, selType);
+            populateSelectElement('filter-pic', pics, selPic);
+            populateSelectElement('filter-audit', audits, selAudit);
+
+            // Toggle visibility of the reset filter option badge
+            const showReset = (selDaerah !== 'ALL' || selType !== 'ALL' || selPic !== 'ALL' || selAudit !== 'ALL');
+            document.getElementById('btn-reset-filters').classList.toggle('hidden', !showReset);
+        }
+
+        function populateSelectElement(id, optionSet, activeValue) {
+            const selectEl = document.getElementById(id);
+            selectEl.innerHTML = `<option value="ALL">All values</option>`;
+            
+            Array.from(optionSet).sort().forEach(val => {
+                const option = document.createElement('option');
+                option.value = val;
+                option.innerText = val;
+                if (val === activeValue) option.selected = true;
+                selectEl.appendChild(option);
+            });
+        }
+
+        function handleFilterChange() {
+            selDaerah = document.getElementById('filter-daerah').value;
+            selType = document.getElementById('filter-type').value;
+            selPic = document.getElementById('filter-pic').value;
+            selAudit = document.getElementById('filter-audit').value;
+
+            const showReset = (selDaerah !== 'ALL' || selType !== 'ALL' || selPic !== 'ALL' || selAudit !== 'ALL');
+            document.getElementById('btn-reset-filters').classList.toggle('hidden', !showReset);
+
+            if (rawSheetData.length > 0) {
+                calculateAndRenderUI();
+                handleSearch();
+            }
+        }
+
+        function resetFilters() {
+            selDaerah = 'ALL';
+            selType = 'ALL';
+            selPic = 'ALL';
+            selAudit = 'ALL';
+
+            document.getElementById('filter-daerah').value = 'ALL';
+            document.getElementById('filter-type').value = 'ALL';
+            document.getElementById('filter-pic').value = 'ALL';
+            document.getElementById('filter-audit').value = 'ALL';
+            document.getElementById('btn-reset-filters').classList.add('hidden');
+
+            calculateAndRenderUI();
+            handleSearch();
+        }
+
+        // Apply drop-down criteria filters to array item datasets
+        function itemPassesFilters(item) {
+            if (selDaerah !== 'ALL' && item.daerah !== selDaerah) return false;
+            if (selType !== 'ALL' && item.type !== selType) return false;
+            if (selPic !== 'ALL' && item.prPic !== selPic) return false;
+            if (selAudit !== 'ALL' && item.audit !== selAudit) return false;
+            return true;
+        }
+
+        async function loadSummaryStats() {
+            try {
+                const [prevRes, currRes] = await Promise.all([
+                    fetch(`https://docs.google.com/spreadsheets/d/${SPREADSHEET_BASE_ID}/gviz/tq?tqx=out:csv&sheet=${actualPreviousYear}`),
+                    fetch(`https://docs.google.com/spreadsheets/d/${SPREADSHEET_BASE_ID}/gviz/tq?tqx=out:csv&sheet=${actualCalendarYear}`)
+                ]);
+                
+                const prevData = parseCsvToArray(await prevRes.text());
+                const currData = parseCsvToArray(await currRes.text());
+
+                let prevTotal = 0; let prevPending = 0;
+                prevData.forEach(c => {
+                    months.forEach(m => {
+                        prevTotal++;
+                        if(c.months[m] !== 'Submitted') prevPending++;
+                    });
+                });
+                const prevYearPendingPercent = prevTotal > 0 ? Math.round((prevPending / prevTotal) * 100) : 0;
+
+                let currTotal = 0; let currPending = 0;
+                currData.forEach(c => {
+                    currTotal++;
+                    if(c.months[actualCurrentMonth] !== 'Submitted') currPending++;
+                });
+                const currMonthPendingPercent = currTotal > 0 ? Math.round((currPending / currTotal) * 100) : 0;
+
+                const wStats = {};
+                currData.forEach(c => {
+                    if(!wStats[c.wilayah]) wStats[c.wilayah] = { t:0, s:0 };
+                    wStats[c.wilayah].t++;
+                    if(c.months[actualCurrentMonth] === 'Submitted') wStats[c.wilayah].s++;
+                });
+                let bestW = '-'; let bestP = -1;
+                Object.keys(wStats).forEach(w => {
+                    const p = Math.round((wStats[w].s / wStats[w].t) * 100);
+                    if(p > bestP) { bestP = p; bestW = w; }
+                });
+
+                summaryMetrics = { prevYearPendingPercent, currMonthPendingPercent, bestW, bestP };
+                renderSummaryCards();
+
+            } catch (error) {
+                console.error("Could not load executive summary background stats.");
+                document.getElementById('summary-cards-container').innerHTML = `<p class="text-xs font-bold text-red-500">Analysis unavailable</p>`;
+            }
+        }
+
+        function renderSummaryCards() {
+            if (!summaryMetrics) return;
+            const { prevYearPendingPercent, currMonthPendingPercent, bestW, bestP } = summaryMetrics;
+            
+            document.getElementById('summary-cards-container').innerHTML = `
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col gap-1 shadow-sm">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">${getText('sum_prev_title')}</span>
+                    <span class="text-2xl font-black ${prevYearPendingPercent > 0 ? 'text-rose-600' : 'text-emerald-600'}">${prevYearPendingPercent}%</span>
+                    <span class="text-[10px] text-slate-500 font-medium">${getText('sum_prev_sub')}</span>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col gap-1 shadow-sm">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">${getText('sum_curr_title')}</span>
+                    <span class="text-2xl font-black ${currMonthPendingPercent > 0 ? 'text-rose-600' : 'text-emerald-600'}">${currMonthPendingPercent}%</span>
+                    <span class="text-[10px] text-slate-500 font-medium">${getText('sum_curr_sub')}</span>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col gap-1 shadow-sm">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">${getText('sum_top_title')}</span>
+                    <span class="text-2xl font-black text-emerald-600">W${bestW}</span>
+                    <span class="text-[10px] text-slate-500 font-medium">${bestP}% ${getText('sum_top_sub')}</span>
+                </div>
+            `;
+        }
+
+        async function loadSheetFeed() {
+            showLoader(true);
+            const csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_BASE_ID}/gviz/tq?tqx=out:csv&sheet=${currentYear}`;
+            try {
+                const response = await fetch(csvUrl);
+                if (!response.ok) throw new Error('Network error');
+                rawSheetData = parseCsvToArray(await response.text());
+                updateTimestamp();
+                buildFilterDropdowns(); // Populate the filters inside sidebar
+                calculateAndRenderUI();
+            } catch (error) {
+                document.getElementById('loader').innerHTML = `<p class="text-xs font-bold text-red-500">Failed to sync live data feed.</p>`;
+            }
+        }
+
+        function calculateAndRenderUI() {
+            showLoader(false);
+            const viewText = currentMonth === 'FULL YEAR' ? getText('annual_view') : currentMonth;
+            document.getElementById('dashboard-title').innerText = `${getText('dashTitle')} (${viewText} ${currentYear})`;
+            
+            const wilayahMap = {};
+            let totalChurches = 0; let totalSubmitted = 0;
+
+            rawSheetData.forEach(item => {
+                // Apply dynamic dropdown state filters here
+                if (!itemPassesFilters(item)) return;
+
+                const w = item.wilayah;
+                if (!w) return;
+                if (!wilayahMap[w]) wilayahMap[w] = { total: 0, submitted: 0, data: [] };
+
+                if (currentMonth === 'FULL YEAR') {
+                    wilayahMap[w].total += 12; totalChurches += 12;
+                    months.forEach(m => { if (item.months[m] === 'Submitted') { wilayahMap[w].submitted++; totalSubmitted++; }});
+                } else {
+                    wilayahMap[w].total++; totalChurches++;
+                    if ((item.months[currentMonth] || 'Pending') === 'Submitted') { wilayahMap[w].submitted++; totalSubmitted++; }
+                }
+                wilayahMap[w].data.push(item);
+            });
+
+            document.getElementById('global-percentage').innerText = `${totalChurches > 0 ? Math.round((totalSubmitted / totalChurches) * 100) : 0}%`;
+
+            const gridContainer = document.getElementById('wilayah-grid');
+            const graphContainer = document.getElementById('comparison-bars-container');
+            gridContainer.innerHTML = ''; graphContainer.innerHTML = '';
+            document.getElementById('comparison-graph-section').classList.remove('hidden');
+
+            // Handle scenario where everything is filtered out
+            if (Object.keys(wilayahMap).length === 0) {
+                gridContainer.innerHTML = `<div class="col-span-full text-center py-6 text-slate-400 text-xs font-medium">No results match selected filter criteria.</div>`;
+                return;
+            }
+
+            Object.keys(wilayahMap).sort((a,b) => a.localeCompare(b, undefined, {numeric: true})).forEach(w => {
+                const stats = wilayahMap[w];
+                const percent = stats.total > 0 ? Math.round((stats.submitted / stats.total) * 100) : 0;
+                const pendingCount = stats.total - stats.submitted;
+                
+                const barFillClass = 'bg-emerald-500';
+                const ringFillClass = 'stroke-emerald-500';
+                const remainBarClass = percent === 100 ? 'bg-slate-100' : 'bg-rose-500';
+                const remainRingClass = percent === 100 ? 'text-slate-100' : 'text-rose-500';
+
+                const card = document.createElement('div');
+                card.className = `relative bg-white p-4 rounded-2xl border transition-all duration-300 flex flex-col items-center justify-center text-center gap-3 hover:shadow-md cursor-pointer print-shadow-none print-break-avoid ${selectedWilayah === w ? 'border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-50/10' : 'border-slate-100 shadow-sm hover:border-slate-300'}`;
+                
+                const alertBadge = pendingCount > 0 ? `<div class="absolute -top-2.5 -right-2.5 bg-rose-500 text-white text-[11px] font-extrabold min-w-[24px] h-6 px-1 flex items-center justify-center rounded-full shadow-md border-2 border-white z-10 print-hide">${pendingCount}</div>` : '';
+
+                card.innerHTML = `
+                    ${alertBadge}
+                    <span class="text-xs font-bold text-slate-700">Wilayah ${w}</span>
+                    <div class="relative w-16 h-16 flex items-center justify-center">
+                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                            <path class="${remainRingClass} transition-colors duration-300" stroke-width="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path class="${ringFillClass} transition-all duration-500" stroke-dasharray="${percent}, 100" stroke-width="3" stroke-linecap="round" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        </svg>
+                        <div class="absolute text-center"><span class="text-xs font-bold text-slate-900">${percent}%</span></div>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">${stats.submitted}/${stats.total} ${getText('received')}</span>
+                        ${percent === 100 ? `<span class="text-[9px] font-bold text-emerald-600 mt-0.5">${getText('all_in')}</span>` : ''}
+                    </div>
+                `;
+                card.onclick = () => { selectedWilayah = w; calculateAndRenderUI(); renderDeepDive(w, stats); openDeepDiveModal(); };
+                gridContainer.appendChild(card);
+
+                const barRow = document.createElement('div');
+                barRow.className = 'flex items-center gap-3 print-break-avoid';
+                barRow.innerHTML = `
+                    <span class="text-[11px] font-bold text-slate-600 w-16 shrink-0 text-right whitespace-nowrap">Wilayah ${w}</span>
+                    <div class="w-full ${remainBarClass} rounded-full h-3.5 overflow-hidden relative shadow-inner transition-colors duration-300">
+                        <div class="${barFillClass} h-full rounded-full transition-all duration-1000 ease-out" style="width: ${percent}%"></div>
+                    </div>
+                    <span class="text-[11px] font-bold text-slate-800 w-10 shrink-0">${percent}%</span>
+                `;
+                graphContainer.appendChild(barRow);
+            });
+        }
+
+        function clearSearch() { document.getElementById('search-input').value = ''; handleSearch(); }
+        
+        function handleSearch() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const stdDash = document.getElementById('standard-dashboard');
+            const srcDash = document.getElementById('search-results-section');
+            const container = document.getElementById('search-results-container');
+
+            if (!query) { stdDash.classList.remove('hidden'); srcDash.classList.add('hidden'); return; }
+
+            stdDash.classList.add('hidden'); srcDash.classList.remove('hidden'); container.innerHTML = '';
+            
+            // Integrate side filters directly into text bar searches
+            const results = rawSheetData.filter(c => {
+                if (!itemPassesFilters(c)) return false;
+                return c.gereja.toLowerCase().includes(query) || 
+                       c.daerah.toLowerCase().includes(query) || 
+                       c.wilayah.toLowerCase().includes(query) || 
+                       c.prPic.toLowerCase().includes(query);
+            });
+
+            if (results.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-center py-8 text-slate-400 text-sm font-medium">No churches found matching "${query}"</div>`;
+                return;
+            }
+
+            results.forEach(c => {
+                const card = document.createElement('div');
+                card.className = 'bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-2 w-full print-break-avoid';
+                card.innerHTML = buildChurchCardHtml(c, true);
+                container.appendChild(card);
+            });
+        }
+
+        function buildChurchCardHtml(c, showLocationTags = false) {
+            let statusDisplay = '';
+            if (currentMonth === 'FULL YEAR') {
+                let gridHtml = '';
+                months.forEach(m => {
+                    const isSub = c.months[m] === 'Submitted';
+                    gridHtml += `<div class="flex flex-col items-center justify-center py-1 rounded border ${isSub ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-rose-50 border-rose-200 text-rose-700'}"><span class="text-[8px] uppercase font-bold opacity-70">${m}</span><span class="text-[10px] md:text-xs">${isSub ? '✓' : '✗'}</span></div>`;
+                });
+                statusDisplay = `<div class="grid grid-cols-6 lg:grid-cols-12 gap-1 w-full mt-1 border-t border-slate-100 pt-2">${gridHtml}</div>`;
+            } else {
+                const isSub = (c.months[currentMonth] || 'Pending') === 'Submitted';
+                statusDisplay = `<div class="shrink-0"><span class="text-[10px] md:text-[11px] font-bold px-2 py-1 rounded-lg ${isSub ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/50' : 'bg-rose-50 text-rose-700 border border-rose-200/50'}">${isSub ? `🟢 ${getText('submitted')}` : `🔴 ${getText('pending')}`}</span></div>`;
+            }
+
+            const extraTags = showLocationTags ? `<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-slate-800 text-white tracking-wider">W${c.wilayah}</span><span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 tracking-wider">${c.daerah}</span>` : '';
+            const viewLabel = currentMonth !== 'FULL YEAR' ? currentMonth : getText('annual_audit');
+            
+            const prBadge = c.prPic && c.prPic !== '-' ? `<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-purple-50 text-purple-600 border border-purple-100 tracking-wider truncate max-w-[90px]" title="${c.prPic}">👤 ${c.prPic}</span>` : '';
+            const auditBadge = c.audit && c.audit !== '-' ? `<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded ${c.audit.toLowerCase().includes('done') ? 'bg-teal-50 text-teal-600 border border-teal-100' : 'bg-orange-50 text-orange-600 border border-orange-100'} tracking-wider truncate max-w-[90px]" title="${c.audit}">📋 ${c.audit}</span>` : '';
+
+            return `
+                <div class="flex items-center justify-between w-full">
+                    <div class="flex flex-col gap-0.5 min-w-0">
+                        <span class="text-xs font-bold text-slate-800 truncate leading-tight">${c.gereja}</span>
+                        <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                            ${extraTags}
+                            <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 tracking-wider">${c.type}</span>
+                            ${prBadge}
+                            ${auditBadge}
+                            ${!showLocationTags ? `<span class="text-[10px] text-slate-400 font-medium">${viewLabel}</span>` : ''}
+                        </div>
+                    </div>
+                    ${currentMonth !== 'FULL YEAR' ? statusDisplay : ''}
+                </div>
+                ${currentMonth === 'FULL YEAR' ? statusDisplay : ''}
+            `;
+        }
+
+        function openDeepDiveModal() {
+            const modal = document.getElementById('deep-dive-modal');
+            const content = document.getElementById('deep-dive-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('scale-95'); }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDeepDiveModal() {
+            const modal = document.getElementById('deep-dive-modal');
+            const content = document.getElementById('deep-dive-content');
+            modal.classList.add('opacity-0'); content.classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); selectedWilayah = null; calculateAndRenderUI(); }, 300); 
+            document.body.style.overflow = '';
+        }
+
+        function renderDeepDive(wilayahName, stats) {
+            const cardsContainer = document.getElementById('church-cards-container');
+            const viewText = currentMonth === 'FULL YEAR' ? getText('annual_view') : currentMonth;
+            
+            document.getElementById('deep-dive-title').innerText = `Wilayah ${wilayahName} - ${viewText}`;
+            cardsContainer.innerHTML = '';
+
+            const daerahGroup = {};
+            stats.data.forEach(church => {
+                if (!daerahGroup[church.daerah]) daerahGroup[church.daerah] = [];
+                daerahGroup[church.daerah].push(church);
+            });
+
+            Object.keys(daerahGroup).sort().forEach(daerahName => {
+                const list = daerahGroup[daerahName];
+                
+                list.sort((a, b) => {
+                    if (currentMonth === 'FULL YEAR') {
+                        const pA = months.filter(m => a.months[m] !== 'Submitted').length;
+                        const pB = months.filter(m => b.months[m] !== 'Submitted').length;
+                        if (pA > 0 && pB === 0) return -1;
+                        if (pA === 0 && pB > 0) return 1;
+                        return a.gereja.localeCompare(b.gereja);
+                    } else {
+                        const sA = a.months[currentMonth] === 'Submitted' ? 1 : 0;
+                        const sB = b.months[currentMonth] === 'Submitted' ? 1 : 0;
+                        if (sA < sB) return -1; if (sA > sB) return 1;
+                        return a.gereja.localeCompare(b.gereja);
+                    }
+                });
+
+                let doneCount = 0; let totalCount = 0;
+                if (currentMonth === 'FULL YEAR') {
+                    list.forEach(c => { totalCount += 12; months.forEach(m => { if(c.months[m] === 'Submitted') doneCount++; }); });
+                } else {
+                    totalCount = list.length;
+                    doneCount = list.filter(c => c.months[currentMonth] === 'Submitted').length;
+                }
+                const daerahPercent = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
+
+                const daerahBlock = document.createElement('div');
+                daerahBlock.className = 'flex flex-col gap-2 bg-slate-200/40 p-3 rounded-2xl border border-slate-200/60 h-fit print-break-avoid print-shadow-none print:bg-white print:border-slate-300';
+                const sanitizedId = daerahName.replace(/[^a-zA-Z0-9]/g, '-');
+
+                daerahBlock.innerHTML = `
+                    <div class="flex justify-between items-center px-1 border-b border-slate-300/50 pb-2 mb-1">
+                        <span class="text-xs font-bold text-slate-800 tracking-wide">📂 DAERAH: ${daerahName}</span>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${daerahPercent === 100 ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-300 text-slate-800'}">${daerahPercent}%</span>
+                    </div>
+                    <div class="flex flex-col gap-2" id="cards-list-${sanitizedId}"></div>
+                `;
+                cardsContainer.appendChild(daerahBlock);
+
+                const listTarget = document.getElementById(`cards-list-${sanitizedId}`);
+                list.forEach(c => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex flex-col gap-2 w-full print-break-avoid print-shadow-none print:border-slate-200';
+                    card.innerHTML = buildChurchCardHtml(c);
+                    listTarget.appendChild(card);
+                });
+            });
+        }
+
+        function changeYear(year) {
+            if (currentYear === year) return;
+            currentYear = year;
+            updateYearSelectorsUI();
+            renderMonthSelectors(); 
+            loadSheetFeed();
+        }
+
+        document.querySelectorAll('#year-selector button').forEach(b => {
+            // Re-bind click event to drop down parameters reset when changing active calendar years
+            const existingClick = b.onclick;
+            b.onclick = function() {
+                selDaerah = 'ALL'; selType = 'ALL'; selPic = 'ALL'; selAudit = 'ALL';
+                if(existingClick) existingClick();
+            }
+        });
+
+        function updateYearSelectorsUI() {
+            document.querySelectorAll('#year-selector button').forEach(b => {
+                b.className = 'py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-500 hover:text-slate-800';
+            });
+            document.getElementById(`btn-${currentYear}`).className = 'py-1.5 text-xs font-bold rounded-lg transition-all duration-200 bg-white text-slate-800 shadow-sm';
+        }
+
+        function changeMonth(m) {
+            if (currentMonth === m) return;
+            currentMonth = m;
+            renderMonthSelectors(); 
+            if (rawSheetData.length > 0) {
+                closeDeepDiveModal(); 
+                calculateAndRenderUI();
+                handleSearch();
+            }
+        }
+
+        function showLoader(show) {
+            if (show) {
+                closeDeepDiveModal();
+                document.getElementById('loader').classList.remove('hidden');
+                document.getElementById('wilayah-grid').classList.add('hidden');
+                document.getElementById('comparison-graph-section').classList.add('hidden');
+            } else {
+                document.getElementById('loader').classList.add('hidden');
+                document.getElementById('wilayah-grid').classList.remove('hidden');
+                document.getElementById('comparison-graph-section').classList.remove('hidden');
+            }
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>

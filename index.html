@@ -194,7 +194,8 @@
         let selectedWilayah = null;
         let currentLanguage = 'en';
 
-        // Variables for live calendar detection
+        // Active calendar configurations extracted dynamically from markup buttons
+        let validYearsArray = [];
         const actualCalendarYear = new Date().getFullYear().toString();
         const actualPreviousYear = (new Date().getFullYear() - 1).toString();
         const actualCurrentMonth = months[new Date().getMonth()];
@@ -322,13 +323,14 @@
         });
 
         function initApp() {
-            // Apply logic to ensure initial logic hooks up configuration settings seamlessly
             setupYearSelectionBinding();
             
             currentYear = actualCalendarYear;
             document.getElementById('footer-year').innerText = currentYear;
             
-            if (!['2023', '2024', '2025', '2026'].includes(currentYear)) currentYear = '2026';
+            if (!validYearsArray.includes(currentYear)) {
+                currentYear = validYearsArray.length > 0 ? validYearsArray[validYearsArray.length - 1] : '2026';
+            }
             currentMonth = actualCurrentMonth; 
             
             updateTimestamp();
@@ -797,7 +799,10 @@
         }
 
         function setupYearSelectionBinding() {
+            validYearsArray = [];
             document.querySelectorAll('#year-selector button').forEach(b => {
+                const val = b.innerText.trim();
+                if(val) validYearsArray.push(val);
                 b.addEventListener('click', function() {
                     selDaerah = 'ALL'; selType = 'ALL'; selPic = 'ALL'; selAudit = 'ALL';
                 });

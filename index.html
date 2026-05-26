@@ -11,31 +11,46 @@
         .modal-scroll::-webkit-scrollbar { width: 6px; }
         .modal-scroll::-webkit-scrollbar-track { background: transparent; }
         .modal-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
-        
-        @media print {
-            body { background: white !important; color: black !important; }
-            .print-hide { display: none !important; }
-            .print-w-full { width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
-            .print-break-avoid { break-inside: avoid; page-break-inside: avoid; }
-            .print-shadow-none { box-shadow: none !important; border: 1px solid #e2e8f0 !important; }
+
+        @media (max-width: 767px) {
+            #mobile-filter-panel { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+            #mobile-filter-panel.open { max-height: 600px; }
         }
 
-        /* FIX 3: Mobile sidebar scroll improvement */
-        @media (max-width: 767px) {
-            #mobile-filter-panel {
-                max-height: 0;
-                overflow: hidden;
-                transition: max-height 0.3s ease;
-            }
-            #mobile-filter-panel.open {
-                max-height: 600px;
-            }
+        /* Wilayah print styles — only active when body has class wilayah-print-mode */
+        body.wilayah-print-mode .main-header,
+        body.wilayah-print-mode main,
+        body.wilayah-print-mode footer { display: none !important; }
+        body.wilayah-print-mode #wilayah-print-area { display: block !important; }
+
+        @media print {
+            body:not(.wilayah-print-mode) { background: white !important; color: black !important; }
+            body:not(.wilayah-print-mode) .print-hide { display: none !important; }
+            body:not(.wilayah-print-mode) .print-w-full { width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            body:not(.wilayah-print-mode) .print-break-avoid { break-inside: avoid; page-break-inside: avoid; }
+            body:not(.wilayah-print-mode) .print-shadow-none { box-shadow: none !important; border: 1px solid #e2e8f0 !important; }
+
+            /* Wilayah-specific print */
+            body.wilayah-print-mode #wilayah-print-area { display: block !important; padding: 24px; }
+            body.wilayah-print-mode .wp-break-avoid { break-inside: avoid; page-break-inside: avoid; }
         }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-blue-500 selection:text-white print:bg-white">
 
-    <header class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-40 px-4 md:px-8 py-3 md:py-4 print-hide">
+    <!-- ═══ WILAYAH PRINT AREA (hidden unless printing wilayah) ═══ -->
+    <div id="wilayah-print-area" style="display:none;" class="p-6 bg-white text-slate-800">
+        <div class="text-center pb-4 border-b-2 border-slate-800 mb-6">
+            <h1 class="text-xl font-extrabold uppercase text-black">TNO Report — Wilayah Detail</h1>
+            <p class="text-sm text-slate-600 font-bold mt-1 uppercase">SABAH MISSION — FINANCE DEPARTMENT</p>
+            <p class="text-xs text-slate-500 mt-1 font-bold" id="wp-timestamp"></p>
+            <p class="text-sm font-extrabold text-slate-800 mt-2" id="wp-title"></p>
+        </div>
+        <div id="wp-content" class="grid grid-cols-1 gap-4"></div>
+    </div>
+
+    <!-- ═══ MAIN HEADER ═══ -->
+    <header class="main-header bg-white border-b border-slate-200 shadow-sm sticky top-0 z-40 px-4 md:px-8 py-3 md:py-4 print-hide">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
             <div class="flex items-center justify-between w-full md:w-auto gap-3 md:gap-4">
                 <div class="order-1 md:order-2 flex flex-col">
@@ -44,7 +59,6 @@
                 </div>
                 <img src="SDA-LOGO.png" alt="SDA Logo" class="h-10 md:h-12 w-auto object-contain order-2 md:order-1 shrink-0">
             </div>
-
             <div class="flex items-center gap-3 w-full md:w-auto justify-end">
                 <div class="flex bg-slate-100 rounded-lg p-0.5 border border-slate-200">
                     <button onclick="changeLang('en')" id="lang-en" class="px-3 py-1 text-xs font-bold rounded-md bg-white text-blue-700 transition shadow-sm border border-slate-200/50">EN</button>
@@ -65,10 +79,9 @@
     </div>
 
     <main class="max-w-7xl mx-auto w-full px-4 md:px-8 mt-6 flex-grow flex flex-col md:flex-row gap-6 items-start print-w-full">
-        
+
+        <!-- ═══ SIDEBAR ═══ -->
         <section class="w-full md:w-80 shrink-0 bg-white rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-4 md:sticky md:top-24 z-30 print-hide">
-            
-            <!-- FIX 3: Mobile collapsible filter toggle -->
             <div class="flex items-center justify-between p-4 md:hidden cursor-pointer" onclick="toggleMobileFilters()">
                 <div class="flex items-center gap-2">
                     <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"></path></svg>
@@ -81,8 +94,7 @@
             </div>
 
             <div id="mobile-filter-panel" class="flex flex-col gap-4 p-4 pt-0 md:p-4 md:pt-4 md:max-h-none md:overflow-visible">
-
-                <div class="bg-blue-50 text-blue-700 text-[10px] px-3 py-1.5 rounded-lg border border-blue-100 font-bold flex items-center justify-between">
+                <div class="bg-blue-50 text-blue-700 text-[10px] px-3 py-1.5 rounded-lg border border-blue-100 font-bold flex items-center">
                     <span class="flex items-center gap-1.5">
                         <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
                         <span data-lang="liveSync">Live Sync Active (5 mins cache)</span>
@@ -118,9 +130,7 @@
                             <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1" data-lang="filterAudit">Audit Status</label>
                             <select id="filter-audit" onchange="handleFilterChange()" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-xl p-2 font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none transition"></select>
                         </div>
-                        <button onclick="resetFilters()" id="btn-reset-filters" class="hidden text-[11px] font-bold text-rose-600 hover:text-rose-700 text-right mt-1 self-end bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-100 transition shadow-sm">
-                            ✕ Reset Filters
-                        </button>
+                        <button onclick="resetFilters()" id="btn-reset-filters" class="hidden text-[11px] font-bold text-rose-600 hover:text-rose-700 text-right mt-1 self-end bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-100 transition shadow-sm">✕ Reset Filters</button>
                     </div>
                 </div>
 
@@ -134,12 +144,11 @@
                     </div>
                     <div class="hidden md:grid md:grid-cols-3 gap-2" id="month-track"></div>
                 </div>
-
             </div>
         </section>
 
+        <!-- ═══ MAIN CONTENT ═══ -->
         <div class="flex-grow w-full flex flex-col gap-6 print-w-full">
-            
             <div class="relative print-hide">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
@@ -156,7 +165,8 @@
             </section>
 
             <div id="standard-dashboard" class="flex flex-col gap-6">
-                
+
+                <!-- Executive Summary -->
                 <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-4 print-break-avoid" id="summary-section">
                     <div class="border-b border-slate-100 pb-2 flex items-center justify-between">
                         <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500" data-lang="summaryTitle">Executive Summary</h3>
@@ -169,6 +179,7 @@
                     </div>
                 </section>
 
+                <!-- Wilayah Grid -->
                 <section class="flex flex-col gap-3">
                     <div class="flex justify-between items-center px-1">
                         <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500" id="dashboard-title">Wilayah Dashboard</h2>
@@ -178,9 +189,10 @@
                         <div class="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                         <p class="text-xs text-slate-400 font-medium animate-pulse" data-lang="fetching">Fetching live data...</p>
                     </div>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 hidden print:grid-cols-5" id="wilayah-grid"></div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 hidden" id="wilayah-grid"></div>
                 </section>
 
+                <!-- Comparison Bars -->
                 <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-4 hidden print-break-avoid print-shadow-none" id="comparison-graph-section">
                     <div class="border-b border-slate-100 pb-2 flex items-center justify-between">
                         <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500" data-lang="compTitle">Submission Comparison</h3>
@@ -193,18 +205,26 @@
         </div>
     </main>
 
-    <footer class="w-full text-center flex flex-col gap-1 text-[11px] font-medium text-slate-400 py-8 border-t border-slate-200/50 mt-12 bg-slate-100/50 print-hide">
+    <footer class="main-footer w-full text-center flex flex-col gap-1 text-[11px] font-medium text-slate-400 py-8 border-t border-slate-200/50 mt-12 bg-slate-100/50 print-hide">
         <p>Sabah Mission — Finance Department &copy; <span id="footer-year">2026</span></p>
         <p id="live-timestamp-footer" class="font-bold text-slate-500"></p>
     </footer>
 
+    <!-- ═══ DEEP DIVE MODAL ═══ -->
     <div id="deep-dive-modal" class="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 sm:p-6 opacity-0 transition-opacity duration-300 print-hide">
         <div class="bg-slate-50 w-full max-w-4xl max-h-[90vh] sm:max-h-[85vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden transform scale-95 transition-transform duration-300" id="deep-dive-content">
             <div class="bg-slate-800 text-white px-5 py-4 flex justify-between items-center shrink-0 shadow-md z-10">
                 <h3 class="text-sm md:text-base font-bold uppercase tracking-widest" id="deep-dive-title">Deep-Dive Status</h3>
-                <button onclick="closeDeepDiveModal()" class="text-slate-300 hover:text-white bg-slate-700/50 hover:bg-slate-600 rounded-full w-8 h-8 flex items-center justify-center transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
+                <div class="flex items-center gap-2">
+                    <!-- NEW: Print button inside modal -->
+                    <button onclick="printWilayahReport()" class="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        <span data-lang="printBtn">Print Report</span>
+                    </button>
+                    <button onclick="closeDeepDiveModal()" class="text-slate-300 hover:text-white bg-slate-700/50 hover:bg-slate-600 rounded-full w-8 h-8 flex items-center justify-center transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
             </div>
             <div class="overflow-y-auto modal-scroll p-4 md:p-6 flex-grow bg-slate-50">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="church-cards-container"></div>
@@ -214,10 +234,10 @@
 
     <script>
         const SPREADSHEET_BASE_ID = '1x3GOISJ6VrvytCil-l_INYRK0HU_s_vf6U1Y2Lpzd8A';
-        const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-        const viewOptions = [...months, 'FULL YEAR']; 
-        
-        let currentYear = ''; 
+        const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+        const viewOptions = [...months, 'FULL YEAR'];
+
+        let currentYear = '';
         let currentMonth = '';
         let rawSheetData = [];
         let selectedWilayah = null;
@@ -228,119 +248,97 @@
         const actualCalendarYear = new Date().getFullYear().toString();
         const actualPreviousYear = (new Date().getFullYear() - 1).toString();
         const actualCurrentMonth = months[new Date().getMonth()];
-        let summaryMetrics = null; 
+        let summaryMetrics = null;
 
-        let selDaerah = 'ALL';
-        let selType = 'ALL';
-        let selPic = 'ALL';
-        let selAudit = 'ALL';
+        // Tracks the current wilayah data for printing
+        let currentDeepDiveWilayah = null;
+        let currentDeepDiveStats = null;
 
-        // ─── FIX 1: Helper — treat "submitted" OR "received" as done ───────────
-        function isSubmittedStatus(statusText) {
-            if (!statusText) return false;
-            const s = statusText.toLowerCase().trim();
-            return s.includes('submit') || s.includes('receiv');
+        let selDaerah = 'ALL', selType = 'ALL', selPic = 'ALL', selAudit = 'ALL';
+
+        // ── Helpers ──────────────────────────────────────────────────────────────
+        function isSubmittedStatus(s) {
+            if (!s) return false;
+            const t = s.toLowerCase().trim();
+            return t.includes('submit') || t.includes('receiv');
         }
 
-        // ─── FIX 2: Helper — determine if audit status means "audited" ──────────
-        function isAuditedStatus(auditText) {
-            if (!auditText || auditText === '-') return false;
-            const s = auditText.toLowerCase().trim();
-            // Positive audit keywords: done, audited, complete, yes, verified, finished
-            return s.includes('done') || s.includes('audit') || s.includes('complet') ||
-                   s.includes('yes') || s.includes('verif') || s.includes('finish');
+        function isAuditedStatus(s) {
+            if (!s || s === '-') return false;
+            const t = s.toLowerCase().trim();
+            return t.includes('done') || t.includes('audit') || t.includes('complet') ||
+                   t.includes('yes') || t.includes('verif') || t.includes('finish');
         }
 
-        // ─── FIX 3: Mobile filter toggle ────────────────────────────────────────
         function toggleMobileFilters() {
             mobileFiltersOpen = !mobileFiltersOpen;
-            const panel = document.getElementById('mobile-filter-panel');
-            const chevron = document.getElementById('mobile-filter-chevron');
-            panel.classList.toggle('open', mobileFiltersOpen);
-            chevron.style.transform = mobileFiltersOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+            document.getElementById('mobile-filter-panel').classList.toggle('open', mobileFiltersOpen);
+            document.getElementById('mobile-filter-chevron').style.transform = mobileFiltersOpen ? 'rotate(180deg)' : '';
         }
 
         function updateMobileFilterBadge() {
-            const badge = document.getElementById('mobile-filter-badge');
-            if (!badge) return;
-            const hasActive = (selDaerah !== 'ALL' || selType !== 'ALL' || selPic !== 'ALL' || selAudit !== 'ALL');
-            badge.classList.toggle('hidden', !hasActive);
+            const active = (selDaerah !== 'ALL' || selType !== 'ALL' || selPic !== 'ALL' || selAudit !== 'ALL');
+            document.getElementById('mobile-filter-badge').classList.toggle('hidden', !active);
         }
 
+        // ── Language dictionary ───────────────────────────────────────────────────
         const dict = {
-            'en': {
-                'title': 'TNO Report Submission Status',
-                'subtitle': 'SABAH MISSION — FINANCE DEPARTMENT',
-                'liveSync': 'Live Sync Active (5 mins cache)',
-                'selYear': 'Select Year',
-                'selView': 'Select View',
-                'filterTitle': 'Data Filters',
-                'filterDaerah': 'Daerah Location',
-                'filterType': 'Classification Type',
-                'filterPic': 'PR PIC Person',
-                'filterAudit': 'Audit Status',
-                'searchPlaceholder': 'Search Church / Daerah...',
-                'searchResults': 'Search Results',
-                'clearSearch': 'Clear ✕',
-                'dashTitle': 'Wilayah Dashboard',
-                'compTitle': 'Submission Comparison',
-                'compSub': 'Wilayah vs. Wilayah',
-                'deepTitle': 'Deep-Dive Status',
-                'printBtn': 'Print Report',
-                'fetching': 'Fetching live data from Google Sheets...',
-                'status_as_of': 'Status as of:',
-                'pending': 'Pending',
-                'submitted': 'Submitted',
-                'received': 'Received',
-                'all_in': '✨ All In!',
-                'full_year': 'FULL YEAR',
-                'full_year_lbl': '📊 Full Year Overview',
-                'annual_view': 'Annual View',
-                'annual_audit': 'Annual Audit View',
-                'summaryTitle': 'Executive Summary',
-                'sum_prev_title': `Pending Reports (${actualPreviousYear})`,
-                'sum_prev_sub': 'Of total year expectations',
-                'sum_curr_title': `Pending (${actualCurrentMonth} ${actualCalendarYear})`,
-                'sum_curr_sub': 'Churches yet to submit',
-                'sum_top_title': `Top Wilayah (${actualCurrentMonth})`,
-                'sum_top_sub': 'Submission rate'
+            en: {
+                title: 'TNO Report Submission Status',
+                subtitle: 'SABAH MISSION — FINANCE DEPARTMENT',
+                liveSync: 'Live Sync Active (5 mins cache)',
+                selYear: 'Select Year', selView: 'Select View',
+                filterTitle: 'Data Filters', filterDaerah: 'Daerah Location',
+                filterType: 'Classification Type', filterPic: 'PR PIC Person',
+                filterAudit: 'Audit Status',
+                searchPlaceholder: 'Search Church / Daerah...',
+                searchResults: 'Search Results', clearSearch: 'Clear ✕',
+                dashTitle: 'Wilayah Dashboard',
+                compTitle: 'Submission Comparison', compSub: 'Wilayah vs. Wilayah',
+                deepTitle: 'Deep-Dive Status',
+                printBtn: 'Print Report',
+                fetching: 'Fetching live data from Google Sheets...',
+                status_as_of: 'Status as of:',
+                pending: 'Pending', submitted: 'Submitted', received: 'Received',
+                all_in: '✨ All In!', full_year: 'FULL YEAR',
+                full_year_lbl: '📊 Full Year Overview',
+                annual_view: 'Annual View', annual_audit: 'Annual Audit View',
+                summaryTitle: 'Executive Summary',
+                sum_prev_title: `Pending Reports (${actualPreviousYear})`,
+                sum_prev_sub: 'Of total year expectations',
+                sum_curr_title: `Pending (${actualCurrentMonth} ${actualCalendarYear})`,
+                sum_curr_sub: 'Churches yet to submit',
+                // NEW card 3
+                sum_sub_title: `Submitted (${actualCurrentMonth} ${actualCalendarYear})`,
+                sum_sub_sub: 'Churches submitted this month'
             },
-            'bm': {
-                'title': 'Status Penyerahan Laporan TNO',
-                'subtitle': 'MISSION SABAH — JABATAN KEWANGAN',
-                'liveSync': 'Penyegerakan Aktif (5 min cache)',
-                'selYear': 'Pilih Tahun',
-                'selView': 'Pilih Paparan',
-                'filterTitle': 'Penapis Data',
-                'filterDaerah': 'Kawasan Daerah',
-                'filterType': 'Jenis Klasifikasi',
-                'filterPic': 'Pegawai PR PIC',
-                'filterAudit': 'Status Audit',
-                'searchPlaceholder': 'Cari Gereja / Daerah...',
-                'searchResults': 'Hasil Carian',
-                'clearSearch': 'Padam ✕',
-                'dashTitle': 'Papan Pemuka Wilayah',
-                'compTitle': 'Perbandingan Penyerahan',
-                'compSub': 'Wilayah vs. Wilayah',
-                'deepTitle': 'Status Terperinci',
-                'printBtn': 'Cetak Laporan',
-                'fetching': 'Mengambil data langsung dari Google Sheets...',
-                'status_as_of': 'Status setakat:',
-                'pending': 'Tertunggak',
-                'submitted': 'Dihantar',
-                'received': 'Diterima',
-                'all_in': '✨ Selesai!',
-                'full_year': 'SEPANJANG TAHUN',
-                'full_year_lbl': '📊 Gambaran Keseluruhan Tahunan',
-                'annual_view': 'Paparan Tahunan',
-                'annual_audit': 'Paparan Audit Tahunan',
-                'summaryTitle': 'Ringkasan Eksekutif',
-                'sum_prev_title': `Laporan Tertunggak (${actualPreviousYear})`,
-                'sum_prev_sub': 'Daripada jangkaan tahunan',
-                'sum_curr_title': `Tertunggak (${actualCurrentMonth} ${actualCalendarYear})`,
-                'sum_curr_sub': 'Gereja belum menghantar',
-                'sum_top_title': `Wilayah Terbaik (${actualCurrentMonth})`,
-                'sum_top_sub': 'Kadar penyerahan'
+            bm: {
+                title: 'Status Penyerahan Laporan TNO',
+                subtitle: 'MISSION SABAH — JABATAN KEWANGAN',
+                liveSync: 'Penyegerakan Aktif (5 min cache)',
+                selYear: 'Pilih Tahun', selView: 'Pilih Paparan',
+                filterTitle: 'Penapis Data', filterDaerah: 'Kawasan Daerah',
+                filterType: 'Jenis Klasifikasi', filterPic: 'Pegawai PR PIC',
+                filterAudit: 'Status Audit',
+                searchPlaceholder: 'Cari Gereja / Daerah...',
+                searchResults: 'Hasil Carian', clearSearch: 'Padam ✕',
+                dashTitle: 'Papan Pemuka Wilayah',
+                compTitle: 'Perbandingan Penyerahan', compSub: 'Wilayah vs. Wilayah',
+                deepTitle: 'Status Terperinci',
+                printBtn: 'Cetak Laporan',
+                fetching: 'Mengambil data langsung dari Google Sheets...',
+                status_as_of: 'Status setakat:',
+                pending: 'Tertunggak', submitted: 'Dihantar', received: 'Diterima',
+                all_in: '✨ Selesai!', full_year: 'SEPANJANG TAHUN',
+                full_year_lbl: '📊 Gambaran Keseluruhan Tahunan',
+                annual_view: 'Paparan Tahunan', annual_audit: 'Paparan Audit Tahunan',
+                summaryTitle: 'Ringkasan Eksekutif',
+                sum_prev_title: `Laporan Tertunggak (${actualPreviousYear})`,
+                sum_prev_sub: 'Daripada jangkaan tahunan',
+                sum_curr_title: `Tertunggak (${actualCurrentMonth} ${actualCalendarYear})`,
+                sum_curr_sub: 'Gereja belum menghantar',
+                sum_sub_title: `Dihantar (${actualCurrentMonth} ${actualCalendarYear})`,
+                sum_sub_sub: 'Gereja telah menghantar bulan ini'
             }
         };
 
@@ -348,246 +346,185 @@
 
         function changeLang(lang) {
             currentLanguage = lang;
-            
-            document.getElementById('lang-en').className = lang === 'en' ? 'px-3 py-1 text-xs font-bold rounded-md bg-white text-blue-700 transition shadow-sm border border-slate-200/50' : 'px-3 py-1 text-xs font-bold rounded-md text-slate-500 hover:text-slate-800 transition';
-            document.getElementById('lang-bm').className = lang === 'bm' ? 'px-3 py-1 text-xs font-bold rounded-md bg-white text-blue-700 transition shadow-sm border border-slate-200/50' : 'px-3 py-1 text-xs font-bold rounded-md text-slate-500 hover:text-slate-800 transition';
-
+            document.getElementById('lang-en').className = lang === 'en'
+                ? 'px-3 py-1 text-xs font-bold rounded-md bg-white text-blue-700 transition shadow-sm border border-slate-200/50'
+                : 'px-3 py-1 text-xs font-bold rounded-md text-slate-500 hover:text-slate-800 transition';
+            document.getElementById('lang-bm').className = lang === 'bm'
+                ? 'px-3 py-1 text-xs font-bold rounded-md bg-white text-blue-700 transition shadow-sm border border-slate-200/50'
+                : 'px-3 py-1 text-xs font-bold rounded-md text-slate-500 hover:text-slate-800 transition';
             document.querySelectorAll('[data-lang]').forEach(el => {
-                const key = el.getAttribute('data-lang');
-                if (dict[currentLanguage][key]) el.innerText = dict[currentLanguage][key];
+                const k = el.getAttribute('data-lang');
+                if (dict[currentLanguage][k]) el.innerText = dict[currentLanguage][k];
             });
-
             document.querySelectorAll('[data-placeholder]').forEach(el => {
-                const key = el.getAttribute('data-placeholder');
-                if (dict[currentLanguage][key]) el.placeholder = dict[currentLanguage][key];
+                const k = el.getAttribute('data-placeholder');
+                if (dict[currentLanguage][k]) el.placeholder = dict[currentLanguage][k];
             });
-
             updateTimestamp();
             renderMonthSelectors();
-            renderSummaryCards(); 
-            if (rawSheetData.length > 0) {
-                calculateAndRenderUI();
-                handleSearch(); 
-            }
+            renderSummaryCards();
+            if (rawSheetData.length > 0) { calculateAndRenderUI(); handleSearch(); }
         }
 
         function updateTimestamp() {
-            const now = new Date();
-            const fullText = `${getText('status_as_of')} ${now.toLocaleString()}`;
-            document.getElementById('live-timestamp-footer').innerText = fullText;
-            document.getElementById('print-timestamp').innerText = fullText;
+            const txt = `${getText('status_as_of')} ${new Date().toLocaleString()}`;
+            document.getElementById('live-timestamp-footer').innerText = txt;
+            document.getElementById('print-timestamp').innerText = txt;
         }
 
         document.getElementById('deep-dive-modal').addEventListener('click', function(e) {
             if (e.target === this) closeDeepDiveModal();
         });
 
+        // ── Init ─────────────────────────────────────────────────────────────────
         function initApp() {
             setupYearSelectionBinding();
-            
             currentYear = actualCalendarYear;
             document.getElementById('footer-year').innerText = currentYear;
-            
-            if (!validYearsArray.includes(currentYear)) {
+            if (!validYearsArray.includes(currentYear))
                 currentYear = validYearsArray.length > 0 ? validYearsArray[validYearsArray.length - 1] : '2026';
-            }
-            currentMonth = actualCurrentMonth; 
-            
+            currentMonth = actualCurrentMonth;
             updateTimestamp();
             updateYearSelectorsUI();
             renderMonthSelectors();
             loadSheetFeed();
-            loadSummaryStats(); 
+            loadSummaryStats();
         }
 
         function renderMonthSelectors() {
             const track = document.getElementById('month-track');
-            track.innerHTML = '';
             const dropdown = document.getElementById('month-dropdown');
-            dropdown.innerHTML = '';
-
+            track.innerHTML = ''; dropdown.innerHTML = '';
             viewOptions.forEach(optVal => {
                 const isActive = optVal === currentMonth;
                 const isFullYear = optVal === 'FULL YEAR';
-                
                 const btn = document.createElement('button');
-                const extraClasses = isFullYear ? 'col-span-3 bg-slate-800 text-white hover:bg-slate-700 mt-2' : '';
-                
-                btn.className = `px-2 py-2 text-xs font-bold rounded-xl transition-all duration-200 text-center w-full print-break-avoid ${extraClasses} ${
-                    isActive && !isFullYear ? 'bg-blue-600 text-white shadow-md shadow-blue-100' : 
-                    (isActive && isFullYear ? 'bg-blue-600 text-white shadow-md' : 
-                    (!extraClasses ? 'bg-slate-100 text-slate-600 hover:bg-slate-200' : ''))
-                }`;
+                const extra = isFullYear ? 'col-span-3 bg-slate-800 text-white hover:bg-slate-700 mt-2' : '';
+                btn.className = `px-2 py-2 text-xs font-bold rounded-xl transition-all duration-200 text-center w-full ${extra} ${
+                    isActive && !isFullYear ? 'bg-blue-600 text-white shadow-md shadow-blue-100' :
+                    isActive && isFullYear  ? 'bg-blue-600 text-white shadow-md' :
+                    !extra ? 'bg-slate-100 text-slate-600 hover:bg-slate-200' : ''}`;
                 btn.innerText = isFullYear ? getText('full_year') : optVal;
                 btn.onclick = () => changeMonth(optVal);
                 track.appendChild(btn);
-
                 const opt = document.createElement('option');
                 opt.value = optVal;
                 opt.innerText = isFullYear ? `${getText('full_year_lbl')} (${currentYear})` : `${optVal} ${currentYear}`;
-                if(isActive) opt.selected = true;
+                if (isActive) opt.selected = true;
                 dropdown.appendChild(opt);
             });
         }
 
-        // ─── FIX 1: Updated parseCsvToArray uses isSubmittedStatus() ─────────────
         function parseCsvToArray(text) {
             const lines = text.split('\n');
             if (lines.length < 2) return [];
-            let data = [];
+            const data = [];
             for (let i = 1; i < lines.length; i++) {
                 if (!lines[i].trim()) continue;
-                const columns = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
-                if (columns.length < 4 || !columns[0]) continue;
-                
-                const rowObj = { 
-                    wilayah: columns[0], 
-                    daerah: columns[1] || '-', 
-                    gereja: columns[2] || 'Unnamed', 
-                    type: columns[3] || 'General', 
-                    prPic: columns[4] || '-',
-                    audit: columns[5] || '-',
-                    months: {} 
+                const cols = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
+                if (cols.length < 4 || !cols[0]) continue;
+                const row = {
+                    wilayah: cols[0], daerah: cols[1] || '-', gereja: cols[2] || 'Unnamed',
+                    type: cols[3] || 'General', prPic: cols[4] || '-', audit: cols[5] || '-', months: {}
                 };
-                
                 months.forEach((m, idx) => {
-                    const statusText = columns[6 + idx] ? columns[6 + idx] : '';
-                    // FIX 1: "Received" now correctly counts as Submitted
-                    rowObj.months[m] = isSubmittedStatus(statusText) ? 'Submitted' : 'Pending';
+                    row.months[m] = isSubmittedStatus(cols[6 + idx]) ? 'Submitted' : 'Pending';
                 });
-                data.push(rowObj);
+                data.push(row);
             }
             return data;
         }
 
         function buildFilterDropdowns() {
-            const daerahs = new Set();
-            const types = new Set();
-            const pics = new Set();
-            const audits = new Set();
-
-            rawSheetData.forEach(row => {
-                if (row.daerah && row.daerah !== '-') daerahs.add(row.daerah);
-                if (row.type && row.type !== '-') types.add(row.type);
-                if (row.prPic && row.prPic !== '-') pics.add(row.prPic);
-                if (row.audit && row.audit !== '-') audits.add(row.audit);
+            const daerahs = new Set(), types = new Set(), pics = new Set(), audits = new Set();
+            rawSheetData.forEach(r => {
+                if (r.daerah && r.daerah !== '-') daerahs.add(r.daerah);
+                if (r.type  && r.type  !== '-') types.add(r.type);
+                if (r.prPic && r.prPic !== '-') pics.add(r.prPic);
+                if (r.audit && r.audit !== '-') audits.add(r.audit);
             });
-
             populateSelectElement('filter-daerah', daerahs, selDaerah);
-            populateSelectElement('filter-type', types, selType);
-            populateSelectElement('filter-pic', pics, selPic);
-            populateSelectElement('filter-audit', audits, selAudit);
-
-            const showReset = (selDaerah !== 'ALL' || selType !== 'ALL' || selPic !== 'ALL' || selAudit !== 'ALL');
-            document.getElementById('btn-reset-filters').classList.toggle('hidden', !showReset);
+            populateSelectElement('filter-type',   types,   selType);
+            populateSelectElement('filter-pic',    pics,    selPic);
+            populateSelectElement('filter-audit',  audits,  selAudit);
+            document.getElementById('btn-reset-filters').classList.toggle('hidden',
+                selDaerah === 'ALL' && selType === 'ALL' && selPic === 'ALL' && selAudit === 'ALL');
         }
 
         function populateSelectElement(id, optionSet, activeValue) {
-            const selectEl = document.getElementById(id);
-            selectEl.innerHTML = `<option value="ALL">All values</option>`;
-            
+            const sel = document.getElementById(id);
+            sel.innerHTML = '<option value="ALL">All values</option>';
             Array.from(optionSet).sort().forEach(val => {
-                const option = document.createElement('option');
-                option.value = val;
-                option.innerText = val;
-                if (val === activeValue) option.selected = true;
-                selectEl.appendChild(option);
+                const o = document.createElement('option');
+                o.value = val; o.innerText = val;
+                if (val === activeValue) o.selected = true;
+                sel.appendChild(o);
             });
         }
 
         function handleFilterChange() {
             selDaerah = document.getElementById('filter-daerah').value;
-            selType = document.getElementById('filter-type').value;
-            selPic = document.getElementById('filter-pic').value;
-            selAudit = document.getElementById('filter-audit').value;
-
-            const showReset = (selDaerah !== 'ALL' || selType !== 'ALL' || selPic !== 'ALL' || selAudit !== 'ALL');
-            document.getElementById('btn-reset-filters').classList.toggle('hidden', !showReset);
-            updateMobileFilterBadge(); // FIX 3: update badge on filter change
-
-            if (rawSheetData.length > 0) {
-                calculateAndRenderUI();
-                handleSearch();
-            }
+            selType   = document.getElementById('filter-type').value;
+            selPic    = document.getElementById('filter-pic').value;
+            selAudit  = document.getElementById('filter-audit').value;
+            document.getElementById('btn-reset-filters').classList.toggle('hidden',
+                selDaerah === 'ALL' && selType === 'ALL' && selPic === 'ALL' && selAudit === 'ALL');
+            updateMobileFilterBadge();
+            if (rawSheetData.length > 0) { calculateAndRenderUI(); handleSearch(); }
         }
 
         function resetFilters() {
-            selDaerah = 'ALL';
-            selType = 'ALL';
-            selPic = 'ALL';
-            selAudit = 'ALL';
-
-            document.getElementById('filter-daerah').value = 'ALL';
-            document.getElementById('filter-type').value = 'ALL';
-            document.getElementById('filter-pic').value = 'ALL';
-            document.getElementById('filter-audit').value = 'ALL';
+            selDaerah = selType = selPic = selAudit = 'ALL';
+            ['filter-daerah','filter-type','filter-pic','filter-audit'].forEach(id => document.getElementById(id).value = 'ALL');
             document.getElementById('btn-reset-filters').classList.add('hidden');
-            updateMobileFilterBadge(); // FIX 3: update badge on reset
-
-            calculateAndRenderUI();
-            handleSearch();
+            updateMobileFilterBadge();
+            calculateAndRenderUI(); handleSearch();
         }
 
         function itemPassesFilters(item) {
             if (selDaerah !== 'ALL' && item.daerah !== selDaerah) return false;
-            if (selType !== 'ALL' && item.type !== selType) return false;
-            if (selPic !== 'ALL' && item.prPic !== selPic) return false;
-            if (selAudit !== 'ALL' && item.audit !== selAudit) return false;
+            if (selType   !== 'ALL' && item.type   !== selType)   return false;
+            if (selPic    !== 'ALL' && item.prPic   !== selPic)    return false;
+            if (selAudit  !== 'ALL' && item.audit   !== selAudit)  return false;
             return true;
         }
 
+        // ── Summary Stats ─────────────────────────────────────────────────────────
         async function loadSummaryStats() {
             try {
                 const [prevRes, currRes] = await Promise.all([
                     fetch(`https://docs.google.com/spreadsheets/d/${SPREADSHEET_BASE_ID}/gviz/tq?tqx=out:csv&sheet=${actualPreviousYear}`),
                     fetch(`https://docs.google.com/spreadsheets/d/${SPREADSHEET_BASE_ID}/gviz/tq?tqx=out:csv&sheet=${actualCalendarYear}`)
                 ]);
-                
                 const prevData = parseCsvToArray(await prevRes.text());
                 const currData = parseCsvToArray(await currRes.text());
 
-                // FIX 1: uses isSubmittedStatus via parseCsvToArray so Received counts correctly
-                let prevTotal = 0; let prevPending = 0;
-                prevData.forEach(c => {
-                    months.forEach(m => {
-                        prevTotal++;
-                        if(c.months[m] !== 'Submitted') prevPending++;
-                    });
-                });
+                // Card 1 — previous year pending %
+                let prevTotal = 0, prevPending = 0;
+                prevData.forEach(c => { months.forEach(m => { prevTotal++; if (c.months[m] !== 'Submitted') prevPending++; }); });
                 const prevYearPendingPercent = prevTotal > 0 ? Math.round((prevPending / prevTotal) * 100) : 0;
 
-                let currTotal = 0; let currPending = 0;
-                currData.forEach(c => {
-                    currTotal++;
-                    if(c.months[actualCurrentMonth] !== 'Submitted') currPending++;
-                });
+                // Card 2 — current month pending %
+                let currTotal = 0, currPending = 0;
+                currData.forEach(c => { currTotal++; if (c.months[actualCurrentMonth] !== 'Submitted') currPending++; });
                 const currMonthPendingPercent = currTotal > 0 ? Math.round((currPending / currTotal) * 100) : 0;
 
-                const wStats = {};
-                currData.forEach(c => {
-                    if(!wStats[c.wilayah]) wStats[c.wilayah] = { t:0, s:0 };
-                    wStats[c.wilayah].t++;
-                    if(c.months[actualCurrentMonth] === 'Submitted') wStats[c.wilayah].s++;
-                });
-                let bestW = '-'; let bestP = -1;
-                Object.keys(wStats).forEach(w => {
-                    const p = Math.round((wStats[w].s / wStats[w].t) * 100);
-                    if(p > bestP) { bestP = p; bestW = w; }
-                });
+                // Card 3 (NEW) — current month submitted count + %
+                const currSubmitted = currTotal - currPending;
+                const currSubmittedPercent = currTotal > 0 ? Math.round((currSubmitted / currTotal) * 100) : 0;
 
-                summaryMetrics = { prevYearPendingPercent, currMonthPendingPercent, bestW, bestP };
+                summaryMetrics = { prevYearPendingPercent, currMonthPendingPercent, currSubmitted, currTotal, currSubmittedPercent };
                 renderSummaryCards();
-
-            } catch (error) {
-                console.error("Could not load executive summary background stats.");
-                document.getElementById('summary-cards-container').innerHTML = `<p class="text-xs font-bold text-red-500 col-span-3 text-center py-4">Executive analytics overview currently unavailable.</p>`;
+            } catch (e) {
+                console.error('Summary stats error', e);
+                document.getElementById('summary-cards-container').innerHTML =
+                    `<p class="text-xs font-bold text-red-500 col-span-3 text-center py-4">Executive analytics overview currently unavailable.</p>`;
             }
         }
 
         function renderSummaryCards() {
             if (!summaryMetrics) return;
-            const { prevYearPendingPercent, currMonthPendingPercent, bestW, bestP } = summaryMetrics;
-            
+            const { prevYearPendingPercent, currMonthPendingPercent, currSubmitted, currTotal, currSubmittedPercent } = summaryMetrics;
             document.getElementById('summary-cards-container').innerHTML = `
                 <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col gap-1 shadow-sm">
                     <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">${getText('sum_prev_title')}</span>
@@ -600,24 +537,25 @@
                     <span class="text-[10px] text-slate-500 font-medium">${getText('sum_curr_sub')}</span>
                 </div>
                 <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col gap-1 shadow-sm">
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">${getText('sum_top_title')}</span>
-                    <span class="text-2xl font-black text-emerald-600">W${bestW}</span>
-                    <span class="text-[10px] text-slate-500 font-medium">${bestP}% ${getText('sum_top_sub')}</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">${getText('sum_sub_title')}</span>
+                    <span class="text-2xl font-black text-emerald-600">${currSubmittedPercent}%</span>
+                    <span class="text-[10px] text-slate-500 font-medium">${currSubmitted} / ${currTotal} · ${getText('sum_sub_sub')}</span>
                 </div>
             `;
         }
 
+        // ── Sheet feed ────────────────────────────────────────────────────────────
         async function loadSheetFeed() {
             showLoader(true);
-            const csvUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_BASE_ID}/gviz/tq?tqx=out:csv&sheet=${currentYear}`;
+            const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_BASE_ID}/gviz/tq?tqx=out:csv&sheet=${currentYear}`;
             try {
-                const response = await fetch(csvUrl);
-                if (!response.ok) throw new Error('Network error');
-                rawSheetData = parseCsvToArray(await response.text());
+                const res = await fetch(url);
+                if (!res.ok) throw new Error('Network error');
+                rawSheetData = parseCsvToArray(await res.text());
                 updateTimestamp();
-                buildFilterDropdowns(); 
+                buildFilterDropdowns();
                 calculateAndRenderUI();
-            } catch (error) {
+            } catch (e) {
                 document.getElementById('loader').innerHTML = `<p class="text-xs font-bold text-red-500">Failed to sync live data feed.</p>`;
             }
         }
@@ -626,20 +564,17 @@
             showLoader(false);
             const viewText = currentMonth === 'FULL YEAR' ? getText('annual_view') : currentMonth;
             document.getElementById('dashboard-title').innerText = `${getText('dashTitle')} (${viewText} ${currentYear})`;
-            
+
             const wilayahMap = {};
-            let totalChurches = 0; let totalSubmitted = 0;
+            let totalChurches = 0, totalSubmitted = 0;
 
             rawSheetData.forEach(item => {
                 if (!itemPassesFilters(item)) return;
-
-                const w = item.wilayah;
-                if (!w) return;
+                const w = item.wilayah; if (!w) return;
                 if (!wilayahMap[w]) wilayahMap[w] = { total: 0, submitted: 0, data: [] };
-
                 if (currentMonth === 'FULL YEAR') {
                     wilayahMap[w].total += 12; totalChurches += 12;
-                    months.forEach(m => { if (item.months[m] === 'Submitted') { wilayahMap[w].submitted++; totalSubmitted++; }});
+                    months.forEach(m => { if (item.months[m] === 'Submitted') { wilayahMap[w].submitted++; totalSubmitted++; } });
                 } else {
                     wilayahMap[w].total++; totalChurches++;
                     if ((item.months[currentMonth] || 'Pending') === 'Submitted') { wilayahMap[w].submitted++; totalSubmitted++; }
@@ -647,124 +582,106 @@
                 wilayahMap[w].data.push(item);
             });
 
-            document.getElementById('global-percentage').innerText = `${totalChurches > 0 ? Math.round((totalSubmitted / totalChurches) * 100) : 0}% Done`;
+            document.getElementById('global-percentage').innerText =
+                `${totalChurches > 0 ? Math.round((totalSubmitted / totalChurches) * 100) : 0}% Done`;
 
-            const gridContainer = document.getElementById('wilayah-grid');
-            const graphContainer = document.getElementById('comparison-bars-container');
-            gridContainer.innerHTML = ''; graphContainer.innerHTML = '';
+            const grid = document.getElementById('wilayah-grid');
+            const graph = document.getElementById('comparison-bars-container');
+            grid.innerHTML = ''; graph.innerHTML = '';
             document.getElementById('comparison-graph-section').classList.remove('hidden');
 
             if (Object.keys(wilayahMap).length === 0) {
-                gridContainer.innerHTML = `<div class="col-span-full text-center py-6 text-slate-400 text-xs font-medium">No results match selected filter criteria.</div>`;
+                grid.innerHTML = `<div class="col-span-full text-center py-6 text-slate-400 text-xs font-medium">No results match selected filter criteria.</div>`;
                 return;
             }
 
-            Object.keys(wilayahMap).sort((a,b) => a.localeCompare(b, undefined, {numeric: true})).forEach(w => {
+            Object.keys(wilayahMap).sort((a,b) => a.localeCompare(b, undefined, {numeric:true})).forEach(w => {
                 const stats = wilayahMap[w];
-                const percent = stats.total > 0 ? Math.round((stats.submitted / stats.total) * 100) : 0;
-                const pendingCount = stats.total - stats.submitted;
-                
-                const barFillClass = 'bg-emerald-500';
-                const ringFillClass = 'stroke-emerald-500';
-                const remainBarClass = percent === 100 ? 'bg-slate-100' : 'bg-rose-500';
-                const remainRingClass = percent === 100 ? 'text-slate-100' : 'text-rose-500';
+                const pct = stats.total > 0 ? Math.round((stats.submitted / stats.total) * 100) : 0;
+                const pending = stats.total - stats.submitted;
 
                 const card = document.createElement('div');
-                card.className = `relative bg-white p-4 rounded-2xl border transition-all duration-300 flex flex-col items-center justify-center text-center gap-3 hover:shadow-md cursor-pointer print-shadow-none print-break-avoid ${selectedWilayah === w ? 'border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-50/10' : 'border-slate-100 shadow-sm hover:border-slate-300'}`;
-                
-                const alertBadge = pendingCount > 0 ? `<div class="absolute -top-2.5 -right-2.5 bg-rose-500 text-white text-[11px] font-extrabold min-w-[24px] h-6 px-1 flex items-center justify-center rounded-full shadow-md border-2 border-white z-10 print-hide">${pendingCount}</div>` : '';
+                card.className = `relative bg-white p-4 rounded-2xl border transition-all duration-300 flex flex-col items-center justify-center text-center gap-3 hover:shadow-md cursor-pointer print-shadow-none print-break-avoid ${
+                    selectedWilayah === w ? 'border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-50/10' : 'border-slate-100 shadow-sm hover:border-slate-300'}`;
 
-                card.innerHTML = `
-                    ${alertBadge}
+                const badge = pending > 0
+                    ? `<div class="absolute -top-2.5 -right-2.5 bg-rose-500 text-white text-[11px] font-extrabold min-w-[24px] h-6 px-1 flex items-center justify-center rounded-full shadow-md border-2 border-white z-10 print-hide">${pending}</div>` : '';
+                const remainRing = pct === 100 ? 'text-slate-100' : 'text-rose-500';
+
+                card.innerHTML = `${badge}
                     <span class="text-xs font-bold text-slate-700">Wilayah ${w}</span>
                     <div class="relative w-16 h-16 flex items-center justify-center">
                         <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                            <path class="${remainRingClass} transition-colors duration-300" stroke-width="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                            <path class="${ringFillClass} transition-all duration-500" stroke-dasharray="${percent}, 100" stroke-width="3" stroke-linecap="round" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path class="${remainRing} transition-colors duration-300" stroke-width="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="stroke-emerald-500 transition-all duration-500" stroke-dasharray="${pct}, 100" stroke-width="3" stroke-linecap="round" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
                         </svg>
-                        <div class="absolute text-center"><span class="text-xs font-bold text-slate-900">${percent}%</span></div>
+                        <div class="absolute"><span class="text-xs font-bold text-slate-900">${pct}%</span></div>
                     </div>
                     <div class="flex flex-col">
                         <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">${stats.submitted}/${stats.total} ${getText('received')}</span>
-                        ${percent === 100 ? `<span class="text-[9px] font-bold text-emerald-600 mt-0.5">${getText('all_in')}</span>` : ''}
-                    </div>
-                `;
+                        ${pct === 100 ? `<span class="text-[9px] font-bold text-emerald-600 mt-0.5">${getText('all_in')}</span>` : ''}
+                    </div>`;
                 card.onclick = () => { selectedWilayah = w; calculateAndRenderUI(); renderDeepDive(w, stats); openDeepDiveModal(); };
-                gridContainer.appendChild(card);
+                grid.appendChild(card);
 
                 const barRow = document.createElement('div');
                 barRow.className = 'flex items-center gap-3 print-break-avoid';
                 barRow.innerHTML = `
                     <span class="text-[11px] font-bold text-slate-600 w-16 shrink-0 text-right whitespace-nowrap">Wilayah ${w}</span>
-                    <div class="w-full ${remainBarClass} rounded-full h-3.5 overflow-hidden relative shadow-inner transition-colors duration-300">
-                        <div class="${barFillClass} h-full rounded-full transition-all duration-1000 ease-out" style="width: ${percent}%"></div>
+                    <div class="w-full ${pct === 100 ? 'bg-slate-100' : 'bg-rose-500'} rounded-full h-3.5 overflow-hidden shadow-inner">
+                        <div class="bg-emerald-500 h-full rounded-full transition-all duration-1000 ease-out" style="width:${pct}%"></div>
                     </div>
-                    <span class="text-[11px] font-bold text-slate-800 w-10 shrink-0">${percent}%</span>
-                `;
-                graphContainer.appendChild(barRow);
+                    <span class="text-[11px] font-bold text-slate-800 w-10 shrink-0">${pct}%</span>`;
+                graph.appendChild(barRow);
             });
         }
 
+        // ── Search ────────────────────────────────────────────────────────────────
         function clearSearch() { document.getElementById('search-input').value = ''; handleSearch(); }
-        
+
         function handleSearch() {
-            const query = document.getElementById('search-input').value.toLowerCase().trim();
+            const q = document.getElementById('search-input').value.toLowerCase().trim();
             const stdDash = document.getElementById('standard-dashboard');
             const srcDash = document.getElementById('search-results-section');
             const container = document.getElementById('search-results-container');
-
-            if (!query) { stdDash.classList.remove('hidden'); srcDash.classList.add('hidden'); return; }
-
+            if (!q) { stdDash.classList.remove('hidden'); srcDash.classList.add('hidden'); return; }
             stdDash.classList.add('hidden'); srcDash.classList.remove('hidden'); container.innerHTML = '';
-            
-            const results = rawSheetData.filter(c => {
-                if (!itemPassesFilters(c)) return false;
-                return c.gereja.toLowerCase().includes(query) || 
-                       c.daerah.toLowerCase().includes(query) || 
-                       c.wilayah.toLowerCase().includes(query) || 
-                       c.prPic.toLowerCase().includes(query);
-            });
-
+            const results = rawSheetData.filter(c => itemPassesFilters(c) && (
+                c.gereja.toLowerCase().includes(q) || c.daerah.toLowerCase().includes(q) ||
+                c.wilayah.toLowerCase().includes(q) || c.prPic.toLowerCase().includes(q)));
             if (results.length === 0) {
-                container.innerHTML = `<div class="col-span-full text-center py-8 text-slate-400 text-sm font-medium">No churches found matching "${query}"</div>`;
+                container.innerHTML = `<div class="col-span-full text-center py-8 text-slate-400 text-sm font-medium">No churches found matching "${q}"</div>`;
                 return;
             }
-
             results.forEach(c => {
                 const card = document.createElement('div');
-                card.className = 'bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-2 w-full print-break-avoid';
+                card.className = 'bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-2 w-full';
                 card.innerHTML = buildChurchCardHtml(c, true);
                 container.appendChild(card);
             });
         }
 
-        // ─── FIX 2: buildChurchCardHtml uses isAuditedStatus() ──────────────────
+        // ── Church card HTML ──────────────────────────────────────────────────────
         function buildChurchCardHtml(c, showLocationTags = false) {
             let statusDisplay = '';
             if (currentMonth === 'FULL YEAR') {
-                let gridHtml = '';
+                let grid = '';
                 months.forEach(m => {
-                    const isSub = c.months[m] === 'Submitted';
-                    gridHtml += `<div class="flex flex-col items-center justify-center py-1 rounded border ${isSub ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-rose-50 border-rose-200 text-rose-700'}"><span class="text-[8px] uppercase font-bold opacity-70">${m}</span><span class="text-[10px] md:text-xs">${isSub ? '✓' : '✗'}</span></div>`;
+                    const ok = c.months[m] === 'Submitted';
+                    grid += `<div class="flex flex-col items-center justify-center py-1 rounded border ${ok ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-rose-50 border-rose-200 text-rose-700'}"><span class="text-[8px] uppercase font-bold opacity-70">${m}</span><span class="text-[10px] md:text-xs">${ok ? '✓' : '✗'}</span></div>`;
                 });
-                statusDisplay = `<div class="grid grid-cols-6 lg:grid-cols-12 gap-1 w-full mt-1 border-t border-slate-100 pt-2">${gridHtml}</div>`;
+                statusDisplay = `<div class="grid grid-cols-6 lg:grid-cols-12 gap-1 w-full mt-1 border-t border-slate-100 pt-2">${grid}</div>`;
             } else {
-                const isSub = (c.months[currentMonth] || 'Pending') === 'Submitted';
-                statusDisplay = `<div class="shrink-0"><span class="text-[10px] md:text-[11px] font-bold px-2 py-1 rounded-lg ${isSub ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/50' : 'bg-rose-50 text-rose-700 border border-rose-200/50'}">${isSub ? `🟢 ${getText('submitted')}` : `🔴 ${getText('pending')}`}</span></div>`;
+                const ok = (c.months[currentMonth] || 'Pending') === 'Submitted';
+                statusDisplay = `<div class="shrink-0"><span class="text-[10px] md:text-[11px] font-bold px-2 py-1 rounded-lg ${ok ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/50' : 'bg-rose-50 text-rose-700 border border-rose-200/50'}">${ok ? `🟢 ${getText('submitted')}` : `🔴 ${getText('pending')}`}</span></div>`;
             }
-
-            const extraTags = showLocationTags ? `<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-slate-800 text-white tracking-wider">W${c.wilayah}</span><span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 tracking-wider">${c.daerah}</span>` : '';
+            const extraTags = showLocationTags
+                ? `<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-slate-800 text-white tracking-wider">W${c.wilayah}</span><span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 tracking-wider">${c.daerah}</span>` : '';
             const viewLabel = currentMonth !== 'FULL YEAR' ? currentMonth : getText('annual_audit');
-            
-            const prBadge = c.prPic && c.prPic !== '-' ? `<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-purple-50 text-purple-600 border border-purple-100 tracking-wider truncate max-w-[90px]" title="${c.prPic}">👤 ${c.prPic}</span>` : '';
-            
-            // FIX 2: Audit badge now uses isAuditedStatus() for smarter detection
-            let auditBadge = '';
-            if (c.audit && c.audit !== '-') {
-                const audited = isAuditedStatus(c.audit);
-                auditBadge = `<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded ${audited ? 'bg-teal-50 text-teal-600 border border-teal-100' : 'bg-orange-50 text-orange-600 border border-orange-100'} tracking-wider truncate max-w-[90px]" title="${c.audit}">📋 ${c.audit}</span>`;
-            }
-
+            const prBadge = c.prPic && c.prPic !== '-'
+                ? `<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-purple-50 text-purple-600 border border-purple-100 tracking-wider truncate max-w-[90px]" title="${c.prPic}">👤 ${c.prPic}</span>` : '';
+            const auditBadge = c.audit && c.audit !== '-'
+                ? `<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded ${isAuditedStatus(c.audit) ? 'bg-teal-50 text-teal-600 border border-teal-100' : 'bg-orange-50 text-orange-600 border border-orange-100'} tracking-wider truncate max-w-[90px]" title="${c.audit}">📋 ${c.audit}</span>` : '';
             return `
                 <div class="flex items-center justify-between w-full">
                     <div class="flex flex-col gap-0.5 min-w-0">
@@ -772,17 +689,16 @@
                         <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
                             ${extraTags}
                             <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 tracking-wider">${c.type}</span>
-                            ${prBadge}
-                            ${auditBadge}
+                            ${prBadge}${auditBadge}
                             ${!showLocationTags ? `<span class="text-[10px] text-slate-400 font-medium">${viewLabel}</span>` : ''}
                         </div>
                     </div>
                     ${currentMonth !== 'FULL YEAR' ? statusDisplay : ''}
                 </div>
-                ${currentMonth === 'FULL YEAR' ? statusDisplay : ''}
-            `;
+                ${currentMonth === 'FULL YEAR' ? statusDisplay : ''}`;
         }
 
+        // ── Modal open / close ────────────────────────────────────────────────────
         function openDeepDiveModal() {
             const modal = document.getElementById('deep-dive-modal');
             const content = document.getElementById('deep-dive-content');
@@ -795,89 +711,164 @@
             const modal = document.getElementById('deep-dive-modal');
             const content = document.getElementById('deep-dive-content');
             modal.classList.add('opacity-0'); content.classList.add('scale-95');
-            setTimeout(() => { modal.classList.add('hidden'); selectedWilayah = null; calculateAndRenderUI(); }, 300); 
+            setTimeout(() => { modal.classList.add('hidden'); selectedWilayah = null; calculateAndRenderUI(); }, 300);
             document.body.style.overflow = '';
         }
 
+        // ── Deep dive render ──────────────────────────────────────────────────────
         function renderDeepDive(wilayahName, stats) {
-            const cardsContainer = document.getElementById('church-cards-container');
-            const viewText = currentMonth === 'FULL YEAR' ? getText('annual_view') : currentMonth;
-            
+            currentDeepDiveWilayah = wilayahName;
+            currentDeepDiveStats   = stats;
+
+            const container = document.getElementById('church-cards-container');
+            const viewText  = currentMonth === 'FULL YEAR' ? getText('annual_view') : currentMonth;
             document.getElementById('deep-dive-title').innerText = `Wilayah ${wilayahName} - ${viewText}`;
-            cardsContainer.innerHTML = '';
+            container.innerHTML = '';
 
             const daerahGroup = {};
-            stats.data.forEach(church => {
-                if (!daerahGroup[church.daerah]) daerahGroup[church.daerah] = [];
-                daerahGroup[church.daerah].push(church);
-            });
+            stats.data.forEach(c => { if (!daerahGroup[c.daerah]) daerahGroup[c.daerah] = []; daerahGroup[c.daerah].push(c); });
 
             Object.keys(daerahGroup).sort().forEach(daerahName => {
                 const list = daerahGroup[daerahName];
-                
                 list.sort((a, b) => {
                     if (currentMonth === 'FULL YEAR') {
                         const pA = months.filter(m => a.months[m] !== 'Submitted').length;
                         const pB = months.filter(m => b.months[m] !== 'Submitted').length;
-                        if (pA > 0 && pB === 0) return -1;
-                        if (pA === 0 && pB > 0) return 1;
-                        return a.gereja.localeCompare(b.gereja);
-                    } else {
-                        const sA = a.months[currentMonth] === 'Submitted' ? 1 : 0;
-                        const sB = b.months[currentMonth] === 'Submitted' ? 1 : 0;
-                        if (sA < sB) return -1; if (sA > sB) return 1;
+                        if (pA > 0 && pB === 0) return -1; if (pA === 0 && pB > 0) return 1;
                         return a.gereja.localeCompare(b.gereja);
                     }
+                    const sA = a.months[currentMonth] === 'Submitted' ? 1 : 0;
+                    const sB = b.months[currentMonth] === 'Submitted' ? 1 : 0;
+                    if (sA < sB) return -1; if (sA > sB) return 1;
+                    return a.gereja.localeCompare(b.gereja);
                 });
 
-                let doneCount = 0; let totalCount = 0;
+                let done = 0, total = 0;
                 if (currentMonth === 'FULL YEAR') {
-                    list.forEach(c => { totalCount += 12; months.forEach(m => { if(c.months[m] === 'Submitted') doneCount++; }); });
+                    list.forEach(c => { total += 12; months.forEach(m => { if (c.months[m] === 'Submitted') done++; }); });
                 } else {
-                    totalCount = list.length;
-                    doneCount = list.filter(c => c.months[currentMonth] === 'Submitted').length;
+                    total = list.length;
+                    done  = list.filter(c => c.months[currentMonth] === 'Submitted').length;
                 }
-                const daerahPercent = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
+                const dpct = total > 0 ? Math.round((done / total) * 100) : 0;
+                const sid  = daerahName.replace(/[^a-zA-Z0-9]/g, '-');
 
-                const daerahBlock = document.createElement('div');
-                daerahBlock.className = 'flex flex-col gap-2 bg-slate-200/40 p-3 rounded-2xl border border-slate-200/60 h-fit print-break-avoid print-shadow-none print:bg-white print:border-slate-300';
-                const sanitizedId = daerahName.replace(/[^a-zA-Z0-9]/g, '-');
-
-                daerahBlock.innerHTML = `
+                const block = document.createElement('div');
+                block.className = 'flex flex-col gap-2 bg-slate-200/40 p-3 rounded-2xl border border-slate-200/60 h-fit';
+                block.innerHTML = `
                     <div class="flex justify-between items-center px-1 border-b border-slate-300/50 pb-2 mb-1">
                         <span class="text-xs font-bold text-slate-800 tracking-wide">📂 DAERAH: ${daerahName}</span>
-                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${daerahPercent === 100 ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-300 text-slate-800'}">${daerahPercent}%</span>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${dpct === 100 ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-300 text-slate-800'}">${dpct}%</span>
                     </div>
-                    <div class="flex flex-col gap-2" id="cards-list-${sanitizedId}"></div>
-                `;
-                cardsContainer.appendChild(daerahBlock);
+                    <div class="flex flex-col gap-2" id="cards-list-${sid}"></div>`;
+                container.appendChild(block);
 
-                const listTarget = document.getElementById(`cards-list-${sanitizedId}`);
+                const target = document.getElementById(`cards-list-${sid}`);
                 list.forEach(c => {
                     const card = document.createElement('div');
-                    card.className = 'bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex flex-col gap-2 w-full print-break-avoid print-shadow-none print:border-slate-200';
+                    card.className = 'bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex flex-col gap-2 w-full';
                     card.innerHTML = buildChurchCardHtml(c);
-                    listTarget.appendChild(card);
+                    target.appendChild(card);
                 });
             });
         }
 
+        // ── NEW: Print Wilayah Full Year Report ───────────────────────────────────
+        function printWilayahReport() {
+            if (!currentDeepDiveWilayah || !currentDeepDiveStats) return;
+
+            const wpTitle   = document.getElementById('wp-title');
+            const wpTS      = document.getElementById('wp-timestamp');
+            const wpContent = document.getElementById('wp-content');
+
+            wpTitle.innerText = `Wilayah ${currentDeepDiveWilayah} — Full Year Report (${currentYear})`;
+            wpTS.innerText    = `${getText('status_as_of')} ${new Date().toLocaleString()}`;
+            wpContent.innerHTML = '';
+
+            // Build full-year grid per daerah
+            const daerahGroup = {};
+            currentDeepDiveStats.data.forEach(c => {
+                if (!daerahGroup[c.daerah]) daerahGroup[c.daerah] = [];
+                daerahGroup[c.daerah].push(c);
+            });
+
+            Object.keys(daerahGroup).sort().forEach(daerahName => {
+                const list = daerahGroup[daerahName];
+                list.sort((a, b) => a.gereja.localeCompare(b.gereja));
+
+                let done = 0;
+                list.forEach(c => { months.forEach(m => { if (c.months[m] === 'Submitted') done++; }); });
+                const total = list.length * 12;
+                const dpct  = total > 0 ? Math.round((done / total) * 100) : 0;
+
+                const block = document.createElement('div');
+                block.className = 'wp-break-avoid mb-6 border border-slate-200 rounded-xl overflow-hidden';
+                block.style.pageBreakInside = 'avoid';
+
+                // Daerah header
+                const hdr = document.createElement('div');
+                hdr.style.cssText = 'background:#1e293b;color:white;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;';
+                hdr.innerHTML = `<span style="font-weight:700;font-size:12px;">📂 DAERAH: ${daerahName}</span><span style="font-size:11px;font-weight:700;background:rgba(255,255,255,0.15);padding:2px 8px;border-radius:999px;">${dpct}% Complete</span>`;
+                block.appendChild(hdr);
+
+                // Table
+                const table = document.createElement('table');
+                table.style.cssText = 'width:100%;border-collapse:collapse;font-size:10px;';
+
+                // Header row
+                const thead = document.createElement('thead');
+                let thHtml = '<tr style="background:#f8fafc;">';
+                thHtml += '<th style="text-align:left;padding:6px 10px;border-bottom:1px solid #e2e8f0;font-weight:700;color:#475569;">Church</th>';
+                thHtml += '<th style="padding:6px 6px;border-bottom:1px solid #e2e8f0;font-weight:700;color:#475569;">Type</th>';
+                thHtml += '<th style="padding:6px 6px;border-bottom:1px solid #e2e8f0;font-weight:700;color:#475569;">Audit</th>';
+                months.forEach(m => {
+                    thHtml += `<th style="padding:6px 4px;border-bottom:1px solid #e2e8f0;font-weight:700;color:#475569;text-align:center;">${m}</th>`;
+                });
+                thHtml += '</tr>';
+                thead.innerHTML = thHtml;
+                table.appendChild(thead);
+
+                // Body rows
+                const tbody = document.createElement('tbody');
+                list.forEach((c, idx) => {
+                    const rowBg = idx % 2 === 0 ? '#ffffff' : '#f8fafc';
+                    let rowHtml = `<tr style="background:${rowBg};">`;
+                    rowHtml += `<td style="padding:5px 10px;border-bottom:1px solid #f1f5f9;font-weight:600;color:#1e293b;">${c.gereja}</td>`;
+                    rowHtml += `<td style="padding:5px 6px;border-bottom:1px solid #f1f5f9;color:#64748b;text-align:center;">${c.type}</td>`;
+                    const auditColor = isAuditedStatus(c.audit) ? '#0d9488' : '#f97316';
+                    rowHtml += `<td style="padding:5px 6px;border-bottom:1px solid #f1f5f9;color:${auditColor};font-weight:700;text-align:center;">${c.audit !== '-' ? c.audit : '—'}</td>`;
+                    months.forEach(m => {
+                        const ok = c.months[m] === 'Submitted';
+                        rowHtml += `<td style="padding:5px 4px;border-bottom:1px solid #f1f5f9;text-align:center;color:${ok ? '#16a34a' : '#dc2626'};font-weight:700;">${ok ? '✓' : '✗'}</td>`;
+                    });
+                    rowHtml += '</tr>';
+                    tbody.innerHTML += rowHtml;
+                });
+                table.appendChild(tbody);
+                block.appendChild(table);
+                wpContent.appendChild(block);
+            });
+
+            // Trigger print in wilayah mode
+            document.body.classList.add('wilayah-print-mode');
+            window.print();
+            document.body.classList.remove('wilayah-print-mode');
+        }
+
+        // ── Year / month helpers ──────────────────────────────────────────────────
         function changeYear(year) {
             if (currentYear === year) return;
             currentYear = year;
             updateYearSelectorsUI();
-            renderMonthSelectors(); 
+            renderMonthSelectors();
             loadSheetFeed();
         }
 
         function setupYearSelectionBinding() {
             validYearsArray = [];
             document.querySelectorAll('#year-selector button').forEach(b => {
-                const val = b.innerText.trim();
-                if(val) validYearsArray.push(val);
-                b.addEventListener('click', function() {
-                    selDaerah = 'ALL'; selType = 'ALL'; selPic = 'ALL'; selAudit = 'ALL';
-                });
+                const v = b.innerText.trim(); if (v) validYearsArray.push(v);
+                b.addEventListener('click', () => { selDaerah = selType = selPic = selAudit = 'ALL'; });
             });
         }
 
@@ -885,21 +876,15 @@
             document.querySelectorAll('#year-selector button').forEach(b => {
                 b.className = 'py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-500 hover:text-slate-800 w-full';
             });
-            const activeBtn = document.getElementById(`btn-${currentYear}`);
-            if (activeBtn) {
-                activeBtn.className = 'py-1.5 text-xs font-bold rounded-lg transition-all duration-200 bg-white text-slate-800 shadow-sm w-full';
-            }
+            const active = document.getElementById(`btn-${currentYear}`);
+            if (active) active.className = 'py-1.5 text-xs font-bold rounded-lg transition-all duration-200 bg-white text-slate-800 shadow-sm w-full';
         }
 
         function changeMonth(m) {
             if (currentMonth === m) return;
             currentMonth = m;
-            renderMonthSelectors(); 
-            if (rawSheetData.length > 0) {
-                closeDeepDiveModal(); 
-                calculateAndRenderUI();
-                handleSearch();
-            }
+            renderMonthSelectors();
+            if (rawSheetData.length > 0) { closeDeepDiveModal(); calculateAndRenderUI(); handleSearch(); }
         }
 
         function showLoader(show) {

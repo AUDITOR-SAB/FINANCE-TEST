@@ -19,6 +19,18 @@
             .print-break-avoid { break-inside: avoid; page-break-inside: avoid; }
             .print-shadow-none { box-shadow: none !important; border: 1px solid #e2e8f0 !important; }
         }
+
+        /* FIX 3: Mobile sidebar scroll improvement */
+        @media (max-width: 767px) {
+            #mobile-filter-panel {
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease;
+            }
+            #mobile-filter-panel.open {
+                max-height: 600px;
+            }
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-blue-500 selection:text-white print:bg-white">
@@ -54,58 +66,75 @@
 
     <main class="max-w-7xl mx-auto w-full px-4 md:px-8 mt-6 flex-grow flex flex-col md:flex-row gap-6 items-start print-w-full">
         
-        <section class="w-full md:w-80 shrink-0 bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-4 sticky md:top-24 z-30 print-hide">
-            <div class="bg-blue-50 text-blue-700 text-[10px] px-3 py-1.5 rounded-lg border border-blue-100 font-bold flex items-center justify-between">
-                <span class="flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-                    <span data-lang="liveSync">Live Sync Active (5 mins cache)</span>
-                </span>
-            </div>
-
-            <div class="flex flex-col gap-2 border-b border-slate-100 pb-3">
-                <span class="text-xs font-semibold uppercase tracking-wider text-slate-400" data-lang="selYear">Select Year</span>
-                <div class="grid grid-cols-4 gap-1.5 bg-slate-100 p-1 rounded-xl" id="year-selector">
-                    <button onclick="changeYear('2023')" id="btn-2023" class="py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-500 hover:text-slate-800">2023</button>
-                    <button onclick="changeYear('2024')" id="btn-2024" class="py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-500 hover:text-slate-800">2024</button>
-                    <button onclick="changeYear('2025')" id="btn-2025" class="py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-500 hover:text-slate-800">2025</button>
-                    <button onclick="changeYear('2026')" id="btn-2026" class="py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-500 hover:text-slate-800">2026</button>
+        <section class="w-full md:w-80 shrink-0 bg-white rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-4 md:sticky md:top-24 z-30 print-hide">
+            
+            <!-- FIX 3: Mobile collapsible filter toggle -->
+            <div class="flex items-center justify-between p-4 md:hidden cursor-pointer" onclick="toggleMobileFilters()">
+                <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"></path></svg>
+                    <span class="text-sm font-bold text-slate-700">Filters &amp; View</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="mobile-filter-badge" class="hidden text-[10px] font-bold bg-blue-600 text-white px-2 py-0.5 rounded-full">Active</span>
+                    <svg id="mobile-filter-chevron" class="w-4 h-4 text-slate-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                 </div>
             </div>
 
-            <div class="flex flex-col gap-2 border-b border-slate-100 pb-3">
-                <span class="text-xs font-semibold uppercase tracking-wider text-slate-400" data-lang="filterTitle">Data Filters</span>
+            <div id="mobile-filter-panel" class="flex flex-col gap-4 p-4 pt-0 md:p-4 md:pt-4 md:max-h-none md:overflow-visible">
+
+                <div class="bg-blue-50 text-blue-700 text-[10px] px-3 py-1.5 rounded-lg border border-blue-100 font-bold flex items-center justify-between">
+                    <span class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                        <span data-lang="liveSync">Live Sync Active (5 mins cache)</span>
+                    </span>
+                </div>
+
+                <div class="flex flex-col gap-2 border-b border-slate-100 pb-3">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400" data-lang="selYear">Select Year</span>
+                    <div class="grid grid-cols-4 gap-1.5 bg-slate-100 p-1 rounded-xl" id="year-selector">
+                        <button onclick="changeYear('2023')" id="btn-2023" class="py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-500 hover:text-slate-800">2023</button>
+                        <button onclick="changeYear('2024')" id="btn-2024" class="py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-500 hover:text-slate-800">2024</button>
+                        <button onclick="changeYear('2025')" id="btn-2025" class="py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-500 hover:text-slate-800">2025</button>
+                        <button onclick="changeYear('2026')" id="btn-2026" class="py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-500 hover:text-slate-800">2026</button>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-2 border-b border-slate-100 pb-3">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400" data-lang="filterTitle">Data Filters</span>
+                    <div class="flex flex-col gap-2">
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1" data-lang="filterDaerah">Daerah</label>
+                            <select id="filter-daerah" onchange="handleFilterChange()" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-xl p-2 font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none transition"></select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1" data-lang="filterType">Classification Type</label>
+                            <select id="filter-type" onchange="handleFilterChange()" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-xl p-2 font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none transition"></select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1" data-lang="filterPic">PR PIC Person</label>
+                            <select id="filter-pic" onchange="handleFilterChange()" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-xl p-2 font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none transition"></select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1" data-lang="filterAudit">Audit Status</label>
+                            <select id="filter-audit" onchange="handleFilterChange()" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-xl p-2 font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none transition"></select>
+                        </div>
+                        <button onclick="resetFilters()" id="btn-reset-filters" class="hidden text-[11px] font-bold text-rose-600 hover:text-rose-700 text-right mt-1 self-end bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-100 transition shadow-sm">
+                            ✕ Reset Filters
+                        </button>
+                    </div>
+                </div>
+
                 <div class="flex flex-col gap-2">
-                    <div>
-                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1" data-lang="filterDaerah">Daerah</label>
-                        <select id="filter-daerah" onchange="handleFilterChange()" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-xl p-2 font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none transition"></select>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400" data-lang="selView">Select View</span>
+                    <div class="block md:hidden relative">
+                        <select id="month-dropdown" onchange="changeMonth(this.value)" class="w-full bg-slate-100 border border-slate-200 text-slate-800 text-sm rounded-xl focus:ring-blue-500 block p-3 font-bold appearance-none shadow-sm"></select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
                     </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1" data-lang="filterType">Classification Type</label>
-                        <select id="filter-type" onchange="handleFilterChange()" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-xl p-2 font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none transition"></select>
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1" data-lang="filterPic">PR PIC Person</label>
-                        <select id="filter-pic" onchange="handleFilterChange()" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-xl p-2 font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none transition"></select>
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1" data-lang="filterAudit">Audit Status</label>
-                        <select id="filter-audit" onchange="handleFilterChange()" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-xl p-2 font-semibold focus:ring-2 focus:ring-blue-500 focus:outline-none transition"></select>
-                    </div>
-                    <button onclick="resetFilters()" id="btn-reset-filters" class="hidden text-[11px] font-bold text-rose-600 hover:text-rose-700 text-right mt-1 self-end bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-100 transition shadow-sm">
-                        ✕ Reset Filters
-                    </button>
+                    <div class="hidden md:grid md:grid-cols-3 gap-2" id="month-track"></div>
                 </div>
-            </div>
 
-            <div class="flex flex-col gap-2">
-                <span class="text-xs font-semibold uppercase tracking-wider text-slate-400" data-lang="selView">Select View</span>
-                <div class="block md:hidden relative">
-                    <select id="month-dropdown" onchange="changeMonth(this.value)" class="w-full bg-slate-100 border border-slate-200 text-slate-800 text-sm rounded-xl focus:ring-blue-500 block p-3 font-bold appearance-none shadow-sm"></select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </div>
-                </div>
-                <div class="hidden md:grid md:grid-cols-3 gap-2" id="month-track"></div>
             </div>
         </section>
 
@@ -193,19 +222,50 @@
         let rawSheetData = [];
         let selectedWilayah = null;
         let currentLanguage = 'en';
+        let mobileFiltersOpen = false;
 
-        // Active calendar configurations extracted dynamically from markup buttons
         let validYearsArray = [];
         const actualCalendarYear = new Date().getFullYear().toString();
         const actualPreviousYear = (new Date().getFullYear() - 1).toString();
         const actualCurrentMonth = months[new Date().getMonth()];
         let summaryMetrics = null; 
 
-        // Active drop-down filter variables
         let selDaerah = 'ALL';
         let selType = 'ALL';
         let selPic = 'ALL';
         let selAudit = 'ALL';
+
+        // ─── FIX 1: Helper — treat "submitted" OR "received" as done ───────────
+        function isSubmittedStatus(statusText) {
+            if (!statusText) return false;
+            const s = statusText.toLowerCase().trim();
+            return s.includes('submit') || s.includes('receiv');
+        }
+
+        // ─── FIX 2: Helper — determine if audit status means "audited" ──────────
+        function isAuditedStatus(auditText) {
+            if (!auditText || auditText === '-') return false;
+            const s = auditText.toLowerCase().trim();
+            // Positive audit keywords: done, audited, complete, yes, verified, finished
+            return s.includes('done') || s.includes('audit') || s.includes('complet') ||
+                   s.includes('yes') || s.includes('verif') || s.includes('finish');
+        }
+
+        // ─── FIX 3: Mobile filter toggle ────────────────────────────────────────
+        function toggleMobileFilters() {
+            mobileFiltersOpen = !mobileFiltersOpen;
+            const panel = document.getElementById('mobile-filter-panel');
+            const chevron = document.getElementById('mobile-filter-chevron');
+            panel.classList.toggle('open', mobileFiltersOpen);
+            chevron.style.transform = mobileFiltersOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+        }
+
+        function updateMobileFilterBadge() {
+            const badge = document.getElementById('mobile-filter-badge');
+            if (!badge) return;
+            const hasActive = (selDaerah !== 'ALL' || selType !== 'ALL' || selPic !== 'ALL' || selAudit !== 'ALL');
+            badge.classList.toggle('hidden', !hasActive);
+        }
 
         const dict = {
             'en': {
@@ -370,6 +430,7 @@
             });
         }
 
+        // ─── FIX 1: Updated parseCsvToArray uses isSubmittedStatus() ─────────────
         function parseCsvToArray(text) {
             const lines = text.split('\n');
             if (lines.length < 2) return [];
@@ -390,8 +451,9 @@
                 };
                 
                 months.forEach((m, idx) => {
-                    const statusText = columns[6 + idx] ? columns[6 + idx].toLowerCase() : '';
-                    rowObj.months[m] = statusText.includes('submit') ? 'Submitted' : 'Pending';
+                    const statusText = columns[6 + idx] ? columns[6 + idx] : '';
+                    // FIX 1: "Received" now correctly counts as Submitted
+                    rowObj.months[m] = isSubmittedStatus(statusText) ? 'Submitted' : 'Pending';
                 });
                 data.push(rowObj);
             }
@@ -441,6 +503,7 @@
 
             const showReset = (selDaerah !== 'ALL' || selType !== 'ALL' || selPic !== 'ALL' || selAudit !== 'ALL');
             document.getElementById('btn-reset-filters').classList.toggle('hidden', !showReset);
+            updateMobileFilterBadge(); // FIX 3: update badge on filter change
 
             if (rawSheetData.length > 0) {
                 calculateAndRenderUI();
@@ -459,6 +522,7 @@
             document.getElementById('filter-pic').value = 'ALL';
             document.getElementById('filter-audit').value = 'ALL';
             document.getElementById('btn-reset-filters').classList.add('hidden');
+            updateMobileFilterBadge(); // FIX 3: update badge on reset
 
             calculateAndRenderUI();
             handleSearch();
@@ -482,6 +546,7 @@
                 const prevData = parseCsvToArray(await prevRes.text());
                 const currData = parseCsvToArray(await currRes.text());
 
+                // FIX 1: uses isSubmittedStatus via parseCsvToArray so Received counts correctly
                 let prevTotal = 0; let prevPending = 0;
                 prevData.forEach(c => {
                     months.forEach(m => {
@@ -673,6 +738,7 @@
             });
         }
 
+        // ─── FIX 2: buildChurchCardHtml uses isAuditedStatus() ──────────────────
         function buildChurchCardHtml(c, showLocationTags = false) {
             let statusDisplay = '';
             if (currentMonth === 'FULL YEAR') {
@@ -691,7 +757,13 @@
             const viewLabel = currentMonth !== 'FULL YEAR' ? currentMonth : getText('annual_audit');
             
             const prBadge = c.prPic && c.prPic !== '-' ? `<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-purple-50 text-purple-600 border border-purple-100 tracking-wider truncate max-w-[90px]" title="${c.prPic}">👤 ${c.prPic}</span>` : '';
-            const auditBadge = c.audit && c.audit !== '-' ? `<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded ${c.audit.toLowerCase().includes('done') ? 'bg-teal-50 text-teal-600 border border-teal-100' : 'bg-orange-50 text-orange-600 border border-orange-100'} tracking-wider truncate max-w-[90px]" title="${c.audit}">📋 ${c.audit}</span>` : '';
+            
+            // FIX 2: Audit badge now uses isAuditedStatus() for smarter detection
+            let auditBadge = '';
+            if (c.audit && c.audit !== '-') {
+                const audited = isAuditedStatus(c.audit);
+                auditBadge = `<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded ${audited ? 'bg-teal-50 text-teal-600 border border-teal-100' : 'bg-orange-50 text-orange-600 border border-orange-100'} tracking-wider truncate max-w-[90px]" title="${c.audit}">📋 ${c.audit}</span>`;
+            }
 
             return `
                 <div class="flex items-center justify-between w-full">

@@ -65,7 +65,7 @@
             <div class="flex flex-col gap-2 border-b border-slate-100 pb-3">
                 <span class="text-xs font-semibold uppercase tracking-wider text-slate-400" data-lang="selYear">Select Year</span>
                 <div class="grid grid-cols-4 gap-1.5 bg-slate-100 p-1 rounded-xl" id="year-selector">
-                    <button onclick="changeYear('2023')" id="btn-2023" class="py-1.5 text-xs font-bold rounded-lg transition-all duration-200">2023</button>
+                    <button onclick="changeYear('2023')" id="btn-2023" class="py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-500 hover:text-slate-800">2023</button>
                     <button onclick="changeYear('2024')" id="btn-2024" class="py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-500 hover:text-slate-800">2024</button>
                     <button onclick="changeYear('2025')" id="btn-2025" class="py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-500 hover:text-slate-800">2025</button>
                     <button onclick="changeYear('2026')" id="btn-2026" class="py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-500 hover:text-slate-800">2026</button>
@@ -322,6 +322,9 @@
         });
 
         function initApp() {
+            // Apply logic to ensure initial logic hooks up configuration settings seamlessly
+            setupYearSelectionBinding();
+            
             currentYear = actualCalendarYear;
             document.getElementById('footer-year').innerText = currentYear;
             
@@ -372,13 +375,13 @@
             for (let i = 1; i < lines.length; i++) {
                 if (!lines[i].trim()) continue;
                 const columns = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
-                if (columns.length < 5 || !columns[0]) continue;
+                if (columns.length < 4 || !columns[0]) continue;
                 
                 const rowObj = { 
                     wilayah: columns[0], 
-                    daerah: columns[1], 
-                    gereja: columns[2], 
-                    type: columns[3], 
+                    daerah: columns[1] || '-', 
+                    gereja: columns[2] || 'Unnamed', 
+                    type: columns[3] || 'General', 
                     prPic: columns[4] || '-',
                     audit: columns[5] || '-',
                     months: {} 
@@ -393,7 +396,6 @@
             return data;
         }
 
-        // Dynamically build dropdown choices based on parsed data array
         function buildFilterDropdowns() {
             const daerahs = new Set();
             const types = new Set();
@@ -412,7 +414,6 @@
             populateSelectElement('filter-pic', pics, selPic);
             populateSelectElement('filter-audit', audits, selAudit);
 
-            // Toggle visibility of the reset filter option badge
             const showReset = (selDaerah !== 'ALL' || selType !== 'ALL' || selPic !== 'ALL' || selAudit !== 'ALL');
             document.getElementById('btn-reset-filters').classList.toggle('hidden', !showReset);
         }
@@ -461,7 +462,6 @@
             handleSearch();
         }
 
-        // Apply drop-down criteria filters to array item datasets
         function itemPassesFilters(item) {
             if (selDaerah !== 'ALL' && item.daerah !== selDaerah) return false;
             if (selType !== 'ALL' && item.type !== selType) return false;
@@ -513,7 +513,7 @@
 
             } catch (error) {
                 console.error("Could not load executive summary background stats.");
-                document.getElementById('summary-cards-container').innerHTML = `<p class="text-xs font-bold text-red-500">Analysis unavailable</p>`;
+                document.getElementById('summary-cards-container').innerHTML = `<p class="text-xs font-bold text-red-500 col-span-3 text-center py-4">Executive analytics overview currently unavailable.</p>`;
             }
         }
 
@@ -548,7 +548,7 @@
                 if (!response.ok) throw new Error('Network error');
                 rawSheetData = parseCsvToArray(await response.text());
                 updateTimestamp();
-                buildFilterDropdowns(); // Populate the filters inside sidebar
+                buildFilterDropdowns(); 
                 calculateAndRenderUI();
             } catch (error) {
                 document.getElementById('loader').innerHTML = `<p class="text-xs font-bold text-red-500">Failed to sync live data feed.</p>`;
@@ -564,7 +564,6 @@
             let totalChurches = 0; let totalSubmitted = 0;
 
             rawSheetData.forEach(item => {
-                // Apply dynamic dropdown state filters here
                 if (!itemPassesFilters(item)) return;
 
                 const w = item.wilayah;
@@ -581,14 +580,13 @@
                 wilayahMap[w].data.push(item);
             });
 
-            document.getElementById('global-percentage').innerText = `${totalChurches > 0 ? Math.round((totalSubmitted / totalChurches) * 100) : 0}%`;
+            document.getElementById('global-percentage').innerText = `${totalChurches > 0 ? Math.round((totalSubmitted / totalChurches) * 100) : 0}% Done`;
 
             const gridContainer = document.getElementById('wilayah-grid');
             const graphContainer = document.getElementById('comparison-bars-container');
             gridContainer.innerHTML = ''; graphContainer.innerHTML = '';
             document.getElementById('comparison-graph-section').classList.remove('hidden');
 
-            // Handle scenario where everything is filtered out
             if (Object.keys(wilayahMap).length === 0) {
                 gridContainer.innerHTML = `<div class="col-span-full text-center py-6 text-slate-400 text-xs font-medium">No results match selected filter criteria.</div>`;
                 return;
@@ -643,7 +641,7 @@
         function clearSearch() { document.getElementById('search-input').value = ''; handleSearch(); }
         
         function handleSearch() {
-            const query = document.getElementById('search-input').value.toLowerCase();
+            const query = document.getElementById('search-input').value.toLowerCase().trim();
             const stdDash = document.getElementById('standard-dashboard');
             const srcDash = document.getElementById('search-results-section');
             const container = document.getElementById('search-results-container');
@@ -652,7 +650,6 @@
 
             stdDash.classList.add('hidden'); srcDash.classList.remove('hidden'); container.innerHTML = '';
             
-            // Integrate side filters directly into text bar searches
             const results = rawSheetData.filter(c => {
                 if (!itemPassesFilters(c)) return false;
                 return c.gereja.toLowerCase().includes(query) || 
@@ -799,20 +796,22 @@
             loadSheetFeed();
         }
 
-        document.querySelectorAll('#year-selector button').forEach(b => {
-            // Re-bind click event to drop down parameters reset when changing active calendar years
-            const existingClick = b.onclick;
-            b.onclick = function() {
-                selDaerah = 'ALL'; selType = 'ALL'; selPic = 'ALL'; selAudit = 'ALL';
-                if(existingClick) existingClick();
-            }
-        });
+        function setupYearSelectionBinding() {
+            document.querySelectorAll('#year-selector button').forEach(b => {
+                b.addEventListener('click', function() {
+                    selDaerah = 'ALL'; selType = 'ALL'; selPic = 'ALL'; selAudit = 'ALL';
+                });
+            });
+        }
 
         function updateYearSelectorsUI() {
             document.querySelectorAll('#year-selector button').forEach(b => {
-                b.className = 'py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-500 hover:text-slate-800';
+                b.className = 'py-1.5 text-xs font-bold rounded-lg transition-all duration-200 text-slate-500 hover:text-slate-800 w-full';
             });
-            document.getElementById(`btn-${currentYear}`).className = 'py-1.5 text-xs font-bold rounded-lg transition-all duration-200 bg-white text-slate-800 shadow-sm';
+            const activeBtn = document.getElementById(`btn-${currentYear}`);
+            if (activeBtn) {
+                activeBtn.className = 'py-1.5 text-xs font-bold rounded-lg transition-all duration-200 bg-white text-slate-800 shadow-sm w-full';
+            }
         }
 
         function changeMonth(m) {
